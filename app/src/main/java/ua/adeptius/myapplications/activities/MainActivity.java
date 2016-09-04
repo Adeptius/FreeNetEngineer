@@ -27,8 +27,8 @@ import android.view.Window;
 import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.Map;
 
 import ua.adeptius.myapplications.R;
@@ -37,12 +37,13 @@ import ua.adeptius.myapplications.orders.Task;
 import ua.adeptius.myapplications.service.ServiceTaskChecker;
 import ua.adeptius.myapplications.util.Utilites;
 import ua.adeptius.myapplications.util.Visual;
+
 import static ua.adeptius.myapplications.activities.LoginActivity.TAG;
 import static ua.adeptius.myapplications.util.Utilites.EXECUTOR;
 import static ua.adeptius.myapplications.util.Utilites.HANDLER;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener, SwipeRefreshLayout.OnRefreshListener{
+        implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener, SwipeRefreshLayout.OnRefreshListener {
 
 
     public static ArrayList<Task> tasks = null;
@@ -58,26 +59,25 @@ public class MainActivity extends AppCompatActivity
     public SwipeRefreshLayout refreshLayout;
 
 
-
     @Override
     public void onClick(View v) {
-            Intent intent = new Intent(this, TaskActivity.class);
-            String a = "" + v.getId();
-            intent.putExtra("position", a);
+        Intent intent = new Intent(this, TaskActivity.class);
+        String a = "" + v.getId();
+        intent.putExtra("position", a);
 
-            String idOfShoosenTask = tasks.get(v.getId()).getId();
-            if (ServiceTaskChecker.newTasksIds.contains(idOfShoosenTask)) {
-                ServiceTaskChecker.newTasksIds.remove(idOfShoosenTask);
-            }// если id заявки на которую мы клацнули есть в списке id новых заявок -
-            // то открывая - удаляем её из списка новых
-            if (!ServiceTaskChecker.wasTasksIds.contains(idOfShoosenTask))
-                ServiceTaskChecker.wasTasksIds.add(idOfShoosenTask);
-            ServiceTaskChecker.wasNewTaskCountInLastTime = ServiceTaskChecker.newTasksIds.size();
+        String idOfShoosenTask = tasks.get(v.getId()).getId();
+        if (ServiceTaskChecker.newTasksIds.contains(idOfShoosenTask)) {
+            ServiceTaskChecker.newTasksIds.remove(idOfShoosenTask);
+        }// если id заявки на которую мы клацнули есть в списке id новых заявок -
+        // то открывая - удаляем её из списка новых
+        if (!ServiceTaskChecker.wasTasksIds.contains(idOfShoosenTask))
+            ServiceTaskChecker.wasTasksIds.add(idOfShoosenTask);
+        ServiceTaskChecker.wasNewTaskCountInLastTime = ServiceTaskChecker.newTasksIds.size();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setExitTransition(new Explode().setDuration(700).setStartDelay(400));
-            startActivity(intent,ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
-        }else {
+            startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
+        } else {
             startActivity(intent);
         }
     }
@@ -99,12 +99,12 @@ public class MainActivity extends AppCompatActivity
 
         sPref = getSharedPreferences("settings", MODE_PRIVATE);
         settingsEditor = sPref.edit();
-        currentLogin = sPref.getString("login","");
-        currentPassword = sPref.getString("password","");
+        currentLogin = sPref.getString("login", "");
+        currentPassword = sPref.getString("password", "");
         mainScrollView = (LinearLayout) findViewById(R.id.main_scroll_view);//главный экран
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.swiperefresh);
         refreshLayout.setOnRefreshListener(this);
-        refreshLayout.setColorSchemeColors(Color.GREEN, Color.BLUE,Color.parseColor("#FF9900"));
+        refreshLayout.setColorSchemeColors(Color.GREEN, Color.BLUE, Color.parseColor("#FF9900"));
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("Загрузка данных с сервера...");
@@ -134,24 +134,25 @@ public class MainActivity extends AppCompatActivity
         refresh();
     }
 
-    public void refresh(){
-        Log.d(TAG, "Обновляем экран. В массиве новых айдишек: "  + ServiceTaskChecker.newTasksIds.size());
+    public void refresh() {
+        Log.d(TAG, "Обновляем экран. В массиве новых айдишек: " + ServiceTaskChecker.newTasksIds.size());
         Log.d(TAG, "Обновляем экран. В массиве бывших айдишек: " + ServiceTaskChecker.wasTasksIds.size());
-        if(needToShow == ONLY_MY_TASK)           {
+        if (needToShow == ONLY_MY_TASK) {
             Visual.CORPORATE_COLOR = Color.parseColor("#3f51b5");
             setTitle("Мои заявки");
         }
-        if(needToShow == ONLY_NOT_ASSIGNED_TASK) {
+        if (needToShow == ONLY_NOT_ASSIGNED_TASK) {
             Visual.CORPORATE_COLOR = Color.parseColor("#757575");
             setTitle("Не назначенные");
         }
-        try{ // очищаем экран, если он не пуст
+        try { // очищаем экран, если он не пуст
             View viev;
             for (int i = 0; i < mainScrollView.getChildCount(); i++) {
                 viev = mainScrollView.getChildAt(i);
                 viev.setVisibility(View.GONE);
             }
-        }catch (Exception ignored){}
+        } catch (Exception ignored) {
+        }
         refreshLayout.setRefreshing(true);
 
         EXECUTOR.submit(new Runnable() {
@@ -161,38 +162,38 @@ public class MainActivity extends AppCompatActivity
                 HANDLER.post(new Runnable() {
                     @Override
                     public void run() {
-                        refreshMainScreen();
                         refreshLayout.setRefreshing(false);
+                        refreshMainScreen();
+
                     }
                 });
             }
         });
     }
 
-    public void refreshMainScreen(){
+    public void refreshMainScreen() {
         Log.d(TAG, "Рисуем заявки на экране");
         // Добавляем превью каждой заявки в наш лейаут
-        Log.d(TAG, "Размер массива заявок: "+tasks.size());
-        if (!(tasks.size()==0)){
-            LinkedList<View> views = new LinkedList<>();
+        Log.d(TAG, "Размер массива заявок: " + tasks.size());
+        if (!(tasks.size() == 0)) {
+            ArrayList<View> views = new ArrayList<>();
             for (int i = 0; i < tasks.size(); i++) {
                 LinearLayout horizontalVievForTask = Visual.getHeader(tasks.get(i), this);
-                if(!ServiceTaskChecker.wasTasksIds.contains(tasks.get(i).getId()))
+                if (!ServiceTaskChecker.wasTasksIds.contains(tasks.get(i).getId()))
                     ServiceTaskChecker.wasTasksIds.add(tasks.get(i).getId());
                 horizontalVievForTask.setOnClickListener(this);
                 horizontalVievForTask.setId(i);
-
-                mainScrollView.addView(horizontalVievForTask);
-
+                views.add(horizontalVievForTask);
                 //Просто отступ между заявками
                 TextView otstup = new TextView(this);
                 otstup.setTextSize(7);
                 otstup.setLayoutParams(Visual.MATCH_WRAP);
-                mainScrollView.addView(otstup);
+                views.add(otstup);
             }
+            animateInTasks(views);
 
-            mainScrollView.startAnimation(AnimationUtils.loadAnimation(this,R.anim.main_screen_trans));
-        }else { // Сообщение: нет заявок
+
+        } else { // Сообщение: нет заявок
             HANDLER.post(new Runnable() {
                 @Override
                 public void run() {
@@ -203,13 +204,40 @@ public class MainActivity extends AppCompatActivity
                     tv.setTextColor(Color.BLUE);
                     mainScrollView.addView(tv, Visual.MATCH_WRAP);
                     refreshLayout.setRefreshing(false);
-                    mainScrollView.startAnimation(AnimationUtils.loadAnimation(MainActivity.this,R.anim.main_screen_trans));
+                    mainScrollView.startAnimation(AnimationUtils.loadAnimation(MainActivity.this, R.anim.main_screen_trans));
                 }
             });
         }
     }
 
-    public void loadAllTasks(){
+    void animateInTasks(final ArrayList<View> views) {
+        EXECUTOR.submit(new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < views.size(); i++) {
+                    final View v = views.get(i);
+                    HANDLER.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (!refreshLayout.isRefreshing()) {
+                                mainScrollView.addView(v);
+                                v.startAnimation(AnimationUtils.loadAnimation(MainActivity.this, R.anim.main_screen_trans));
+                            }
+                        }
+                    });
+                    if (i % 2 != 0) {
+                        try {
+                            Thread.sleep(80);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    public void loadAllTasks() {
         try {
             tasks = null;
             String[] request = null;
@@ -221,7 +249,7 @@ public class MainActivity extends AppCompatActivity
                 request[2] = "drowssap=" + currentPassword;
             }
 
-            if (needToShow == ONLY_NOT_ASSIGNED_TASK){ // тут должно быть ONLY_NOT_ASSIGNED_TASK
+            if (needToShow == ONLY_NOT_ASSIGNED_TASK) { // тут должно быть ONLY_NOT_ASSIGNED_TASK
                 Log.d(TAG, "Запрашиваю не назначенные заявки");
                 request = new String[4];
                 request[0] = "http://188.231.188.188/api/notassigned_api.php";
@@ -232,14 +260,14 @@ public class MainActivity extends AppCompatActivity
 
             ArrayList<Map<String, String>> arrayMap = new DataBase().execute(request).get();
             tasks = new ArrayList<>(); // будем все таски пихать сюда
-            if (!arrayMap.get(0).containsKey("error") ){ // если нам не пришло [{"error":"No_tasks"}]
+            if (!arrayMap.get(0).containsKey("error")) { // если нам не пришло [{"error":"No_tasks"}]
                 Log.d(TAG, "Заявки есть. Создаю обьекты - заявки");
                 for (int i = 0; i < arrayMap.size(); i++) { // Для каждого обьекта "заявка"
                     Map<String, String> temp = arrayMap.get(i);
                     tasks.add(Utilites.createTask(temp));
                 }
             }
-        }catch (Exception e) {
+        } catch (Exception e) {
             HANDLER.post(new Runnable() {
                 @Override
                 public void run() {
@@ -299,24 +327,24 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_btn_my_tasks) {
             needToShow = ONLY_MY_TASK;
             refresh();
-
-        }if (id == R.id.nav_port) {
+        }
+        if (id == R.id.nav_port) {
             Intent intent = new Intent(this, CableTestActivity.class);
             intent.putExtra("switch", "Неизвестно");
             intent.putExtra("port", "Неизвестно");
             startActivity(intent);
 
-
-        }else if (id == R.id.btn_not_assigned) {
+        } else if (id == R.id.btn_not_assigned) {
             needToShow = ONLY_NOT_ASSIGNED_TASK;
             refresh();
 
-        } else if (id == R.id.nav_manage){ startActivity(new Intent(this, SettingsActivity.class));
+        } else if (id == R.id.nav_manage) {
+            startActivity(new Intent(this, SettingsActivity.class));
 
-        } else if (id == R.id.nav_info)  {
+        } else if (id == R.id.nav_info) {
             startActivity(new Intent(this, AboutActivity.class));
 
-        }else if (id == R.id.nav_exit) {
+        } else if (id == R.id.nav_exit) {
             stopService(new Intent(this, ServiceTaskChecker.class));
             settingsEditor.putString("login", "");
             settingsEditor.putString("password", "");
@@ -332,6 +360,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onPostResume() {
         super.onPostResume();
-            mainScrollView.startAnimation(AnimationUtils.loadAnimation(this,R.anim.main_screen_trans));
+        mainScrollView.startAnimation(AnimationUtils.loadAnimation(this, R.anim.main_screen_trans));
     }
 }

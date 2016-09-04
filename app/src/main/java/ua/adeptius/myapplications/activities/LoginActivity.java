@@ -1,6 +1,5 @@
 package ua.adeptius.myapplications.activities;
 
-import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -8,13 +7,11 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Build;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.transition.Slide;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -67,19 +64,8 @@ public class LoginActivity extends AppCompatActivity {
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         final Button enterButton = (Button) findViewById(R.id.email_sign_in_button);
 
-        if (!isOnline()) { // если инета нет
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage("Программа не работает\nбез интернета.");
-            builder.setCancelable(true);
-            builder.setPositiveButton("Закрыть", new DialogInterface.OnClickListener() { // Кнопка ОК
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss(); // Отпускает диалоговое окно
-                    LoginActivity.this.finish();
-                }
-            });
-            AlertDialog dialog = builder.create();
-            dialog.show();
+        if (!isCurrentDeviceOnline()) { // если инета нет
+            showDialogInternetIsAbsent();
         } else { // если инет есть
             try {// Проверяем наличие новой версии
                 fileNameOfNewVersion = new ReadNameOfNewVersion().execute("http://e404.ho.ua/FreeNetEngineer/").get();
@@ -128,12 +114,27 @@ public class LoginActivity extends AppCompatActivity {
                 });
 
             } else { // если обновление есть
-                showNewVersionDialog();
+                showDialogThatWeHaveANewVersion();
             }
         }
     }
 
-    private void showNewVersionDialog() {
+    private void showDialogInternetIsAbsent() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Программа не работает\nбез интернета.");
+        builder.setCancelable(true);
+        builder.setPositiveButton("Закрыть", new DialogInterface.OnClickListener() { // Кнопка ОК
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss(); // Отпускает диалоговое окно
+                LoginActivity.this.finish();
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void showDialogThatWeHaveANewVersion() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         StringBuilder sb = new StringBuilder("");
         sb.append("Найдена новая версия!\n");
@@ -159,18 +160,10 @@ public class LoginActivity extends AppCompatActivity {
         settingsEditor.putString("password", password);
         settingsEditor.commit();
         LoginActivity.this.finish();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setExitTransition(new Slide().setDuration(800));
-            startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
-        } else {
-            startActivity(intent);
-        }
+        startActivity(intent);
     }
 
-    /**
-     * Проверка наличия инета
-     */
-    public boolean isOnline() {
+    public boolean isCurrentDeviceOnline() {
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         return netInfo != null && netInfo.isConnectedOrConnecting();
@@ -186,7 +179,7 @@ public class LoginActivity extends AppCompatActivity {
      * Проверка новых версий
      * Возвращает имя файла последней версии
      */
-    public class ReadNameOfNewVersion extends AsyncTask<String, String, String> {
+    public static class ReadNameOfNewVersion extends AsyncTask<String, String, String> {
         @Override
         protected String doInBackground(String... params) {
             HttpURLConnection connection = null;

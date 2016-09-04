@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context=".activities.SettingsActivity"
+    android:orientation="vertical">
+
+    <Switch
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Проверять наличие новых заявок"
+        android:id="@+id/new_tasks_switch"
+        android:checked="true"
+        android:layout_marginTop="28dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:layout_marginTop="10dp">
+
+        <Switch
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Звук"
+            android:id="@+id/switchSound"
+            android:layout_below="@+id/new_tasks_switch"
+            android:layout_alignParentStart="true"
+            android:layout_toStartOf="@+id/switchVibro"
+            android:layout_weight="1"
+            android:checked="false"
+            android:gravity="center_vertical|center_horizontal" />
+
+        <Switch
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Вибрация"
+            android:id="@+id/switchVibro"
+            android:layout_marginBottom="46dp"
+            android:layout_above="@+id/checkBoxVoskressenye"
+            android:layout_centerHorizontal="true"
+            android:layout_weight="1"
+            android:checked="false"
+            android:gravity="center_vertical|center_horizontal" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Часы оповещения с:"
+        android:id="@+id/seek_bar_text_view_from"
+        android:layout_marginTop="0dp"
+        android:layout_below="@+id/new_tasks_switch"
+        android:layout_alignParentStart="true"
+        android:layout_alignEnd="@+id/seek_bar_from"
+        android:layout_gravity="center_vertical" />
+
+    <SeekBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/seek_bar_from"
+        android:layout_below="@+id/seek_bar_text_view_from"
+        android:layout_alignParentStart="true"
+        android:max="24"
+        android:indeterminate="false"
+        android:layout_alignEnd="@+id/seek_bar_text_view_to"
+        android:progress="8"
+        android:layout_gravity="right" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="до:"
+        android:id="@+id/seek_bar_text_view_to"
+        android:layout_below="@+id/seek_bar_from"
+        android:layout_alignEnd="@+id/seek_bar_to"
+        android:layout_alignParentStart="true" />
+
+    <SeekBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/seek_bar_to"
+        android:layout_below="@+id/seek_bar_text_view_to"
+        android:layout_alignParentStart="true"
+        android:layout_alignEnd="@+id/new_tasks_switch"
+        android:indeterminate="false"
+        android:max="24"
+        android:progress="18" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp">
+
+        <Switch
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Суббота"
+            android:id="@+id/switchSubbota"
+            android:layout_weight="1"
+            android:gravity="center_vertical|center_horizontal"
+            android:checked="false" />
+
+        <Switch
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Воскресенье"
+            android:id="@+id/switchVoskresenye"
+            android:layout_weight="1"
+            android:gravity="center_vertical|center_horizontal"
+            android:checked="false" />
+    </LinearLayout>
+
+    <Switch
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Только портретная ориентация"
+        android:id="@+id/switchPortrait"
+        android:checked="false" />
+
+    Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New Button"
+        android:id="@+id/button"
+        android:layout_gravity="right" />
+
+
+</LinearLayout>

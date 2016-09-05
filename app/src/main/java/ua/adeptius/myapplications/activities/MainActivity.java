@@ -68,8 +68,9 @@ public class MainActivity extends AppCompatActivity
         String idOfShoosenTask = tasks.get(v.getId()).getId();
         if (ServiceTaskChecker.newTasksIds.contains(idOfShoosenTask)) {
             ServiceTaskChecker.newTasksIds.remove(idOfShoosenTask);
+            v.setBackgroundColor(Visual.CORPORATE_COLOR);
         }// если id заявки на которую мы клацнули есть в списке id новых заявок -
-        // то открывая - удаляем её из списка новых
+        // то открывая - удаляем её из списка новых и делаем её цвет синим
         if (!ServiceTaskChecker.wasTasksIds.contains(idOfShoosenTask))
             ServiceTaskChecker.wasTasksIds.add(idOfShoosenTask);
         ServiceTaskChecker.wasNewTaskCountInLastTime = ServiceTaskChecker.newTasksIds.size();
@@ -135,6 +136,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void refresh() {
+        interruptViewUpdate = true;
         Log.d(TAG, "Обновляем экран. В массиве новых айдишек: " + ServiceTaskChecker.newTasksIds.size());
         Log.d(TAG, "Обновляем экран. В массиве бывших айдишек: " + ServiceTaskChecker.wasTasksIds.size());
         if (needToShow == ONLY_MY_TASK) {
@@ -210,28 +212,36 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    private volatile boolean interruptViewUpdate;
+
+
     void animateInTasks(final ArrayList<View> views) {
+        interruptViewUpdate = false;
         EXECUTOR.submit(new Runnable() {
             @Override
             public void run() {
                 for (int i = 0; i < views.size(); i++) {
                     final View v = views.get(i);
-                    HANDLER.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (!refreshLayout.isRefreshing()) {
-                                mainScrollView.addView(v);
-                                v.startAnimation(AnimationUtils.loadAnimation(MainActivity.this, R.anim.main_screen_trans));
+                    if (!interruptViewUpdate) {
+
+                        HANDLER.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (!interruptViewUpdate) {
+                                    mainScrollView.addView(v);
+                                    v.startAnimation(AnimationUtils.loadAnimation(MainActivity.this, R.anim.main_screen_trans));
+                                }
+                            }
+                        });
+                        if (!interruptViewUpdate && i % 2 != 0) {
+                            try {
+                                Thread.sleep(80);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
                             }
                         }
-                    });
-                    if (i % 2 != 0) {
-                        try {
-                            Thread.sleep(80);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
                     }
+
                 }
             }
         });

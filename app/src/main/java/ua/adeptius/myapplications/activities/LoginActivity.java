@@ -80,7 +80,6 @@ public class LoginActivity extends AppCompatActivity {
                 String forToast = "Не найден файл обновлений";
                 Visual.makeMyToast(forToast, this, getLayoutInflater(), findViewById(R.id.toast_layout_root));
             }
-
             if (newVersionIs == 0 || CURRENT_VERSION >= newVersionIs) { // если обновлений нет
                 // Чтение логина и пароля из настроек
                 login = sPref.getString("login", "");

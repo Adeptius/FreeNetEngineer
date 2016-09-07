@@ -120,11 +120,10 @@ public class ServiceTaskChecker extends Service {
         if (countOfNewTasks > 0) {
             resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
             mBuilder.setContentIntent(resultPendingIntent);
+            mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
         } else {
-            resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_CANCEL_CURRENT);
-            mBuilder.setContentIntent(resultPendingIntent);
+            mNotificationManager.cancel(NOTIFICATION_ID);
         }
-        mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
     }
 
     private ArrayList<String> getAllTasksIds() {// загрузка всех текущих айдишек

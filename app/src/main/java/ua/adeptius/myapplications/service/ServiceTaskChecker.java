@@ -65,12 +65,12 @@ public class ServiceTaskChecker extends Service {
                         }
 
                         Log.d(TAG, "Новых заявок: " + newTasksIds.size());
-                        if (newTasksIds.size() > 0) {
+                       // if (newTasksIds.size() > 0) {
                             if (wasNewTaskCountInLastTime != newTasksIds.size()) {
                                 showNotification(newTasksIds.size());
                                 wasNewTaskCountInLastTime = newTasksIds.size();
                             }
-                        }
+                        //}
                     }
                     try {
                         Thread.sleep(600000);

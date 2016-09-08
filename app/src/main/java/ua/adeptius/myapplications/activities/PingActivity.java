@@ -11,6 +11,7 @@ import android.widget.TextView;
 import ua.adeptius.myapplications.R;
 import ua.adeptius.myapplications.connection.Ping;
 import ua.adeptius.myapplications.service.ServiceTaskChecker;
+import ua.adeptius.myapplications.util.Settings;
 import ua.adeptius.myapplications.util.Visual;
 
 import static ua.adeptius.myapplications.util.Utilites.EXECUTOR;
@@ -27,7 +28,7 @@ public class PingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ping);
-        if (ServiceTaskChecker.switchPortrait)
+        if (Settings.isSwitchPortrait())
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         pingScrollView = (LinearLayout) findViewById(R.id.ping_scroll_view);
         proBar = (ProgressBar) findViewById(R.id.progressBar2);

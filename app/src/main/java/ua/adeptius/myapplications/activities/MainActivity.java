@@ -35,6 +35,7 @@ import ua.adeptius.myapplications.R;
 import ua.adeptius.myapplications.connection.DataBase;
 import ua.adeptius.myapplications.orders.Task;
 import ua.adeptius.myapplications.service.ServiceTaskChecker;
+import ua.adeptius.myapplications.util.Settings;
 import ua.adeptius.myapplications.util.Utilites;
 import ua.adeptius.myapplications.util.Visual;
 
@@ -47,14 +48,10 @@ public class MainActivity extends AppCompatActivity
 
 
     public static ArrayList<Task> tasks = null;
-    public static String currentLogin;
-    public static String currentPassword;
     public static LinearLayout mainScrollView;
     public static final int ONLY_MY_TASK = 1;
     public static final int ONLY_NOT_ASSIGNED_TASK = 3;
     public static int needToShow;
-    SharedPreferences sPref;
-    SharedPreferences.Editor settingsEditor;
     public static AlertDialog loadingDialog;
     public SwipeRefreshLayout refreshLayout;
 
@@ -91,17 +88,13 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (ServiceTaskChecker.switchPortrait)
+        if (Settings.isSwitchPortrait())
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        sPref = getSharedPreferences("settings", MODE_PRIVATE);
-        settingsEditor = sPref.edit();
-        currentLogin = sPref.getString("login", "");
-        currentPassword = sPref.getString("password", "");
         mainScrollView = (LinearLayout) findViewById(R.id.main_scroll_view);//главный экран
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.swiperefresh);
         refreshLayout.setOnRefreshListener(this);
@@ -255,16 +248,16 @@ public class MainActivity extends AppCompatActivity
                 Log.d(TAG, "Запрашиваю назначенные заявки");
                 request = new String[3];
                 request[0] = "http://188.231.188.188/api/task_api.php";
-                request[1] = "begun=" + currentLogin;
-                request[2] = "drowssap=" + currentPassword;
+                request[1] = "begun=" + Settings.getCurrentLogin();
+                request[2] = "drowssap=" + Settings.getCurrentPassword();
             }
 
             if (needToShow == ONLY_NOT_ASSIGNED_TASK) { // тут должно быть ONLY_NOT_ASSIGNED_TASK
                 Log.d(TAG, "Запрашиваю не назначенные заявки");
                 request = new String[4];
                 request[0] = "http://188.231.188.188/api/notassigned_api.php";
-                request[1] = "begun=" + currentLogin;
-                request[2] = "drowssap=" + currentPassword;
+                request[1] = "begun=" + Settings.getCurrentLogin();
+                request[2] = "drowssap=" + Settings.getCurrentPassword();
                 request[3] = "taccepted=notassigned";
             }
 
@@ -356,9 +349,7 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_exit) {
             stopService(new Intent(this, ServiceTaskChecker.class));
-            settingsEditor.putString("login", "");
-            settingsEditor.putString("password", "");
-            settingsEditor.commit();
+            Settings.eraseLoginAndPassword();
             MainActivity.this.finish();
         }
 

@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import ua.adeptius.myapplications.R;
 import ua.adeptius.myapplications.service.ServiceTaskChecker;
+import ua.adeptius.myapplications.util.Settings;
 import ua.adeptius.myapplications.util.Visual;
 
 public class AboutActivity extends AppCompatActivity implements View.OnClickListener {
@@ -20,7 +21,7 @@ public class AboutActivity extends AppCompatActivity implements View.OnClickList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_about);
-        if (ServiceTaskChecker.switchPortrait)
+        if (Settings.isSwitchPortrait())
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

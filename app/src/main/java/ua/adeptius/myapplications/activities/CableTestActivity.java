@@ -32,6 +32,8 @@ import java.util.Map;
 
 import ua.adeptius.myapplications.R;
 import ua.adeptius.myapplications.service.ServiceTaskChecker;
+import ua.adeptius.myapplications.util.Settings;
+
 import static ua.adeptius.myapplications.activities.LoginActivity.TAG;
 
 public class CableTestActivity extends AppCompatActivity implements TextView.OnEditorActionListener {
@@ -45,7 +47,7 @@ public class CableTestActivity extends AppCompatActivity implements TextView.OnE
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cable_test);
-        if (ServiceTaskChecker.switchPortrait)
+        if (Settings.isSwitchPortrait())
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         edTextSwitch = (EditText) findViewById(R.id.ed_text_switch);
@@ -119,8 +121,8 @@ public class CableTestActivity extends AppCompatActivity implements TextView.OnE
     void cableTest(String ip, String port) {
         String[] request = new String[5];
         request[0] = "http://188.231.188.188/api/task_tdr_api.php";
-        request[1] = "begun=" + MainActivity.currentLogin;
-        request[2] = "drowssap=" + MainActivity.currentPassword;
+        request[1] = "begun=" + Settings.getCurrentLogin();
+        request[2] = "drowssap=" + Settings.getCurrentPassword();
         request[3] = "ip=172." + ip;
         request[4] = "port=" + port;
         new CableTest().execute(request);
@@ -129,8 +131,8 @@ public class CableTestActivity extends AppCompatActivity implements TextView.OnE
     void portInfo(String ip, String port) {
         String[] request = new String[5];
         request[0] = "http://188.231.188.188/api/task_shport_api.php";
-        request[1] = "begun=" + MainActivity.currentLogin;
-        request[2] = "drowssap=" + MainActivity.currentPassword;
+        request[1] = "begun=" + Settings.getCurrentLogin();
+        request[2] = "drowssap=" + Settings.getCurrentPassword();
         request[3] = "ip=172." + ip;
         request[4] = "port=" + port;
         new PortInfo().execute(request);

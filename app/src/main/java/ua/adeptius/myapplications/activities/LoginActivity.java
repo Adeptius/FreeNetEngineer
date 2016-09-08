@@ -3,7 +3,6 @@ package ua.adeptius.myapplications.activities;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -29,7 +28,7 @@ import java.net.URL;
 
 import ua.adeptius.myapplications.R;
 import ua.adeptius.myapplications.connection.Network;
-import ua.adeptius.myapplications.service.ServiceTaskChecker;
+import ua.adeptius.myapplications.util.Settings;
 import ua.adeptius.myapplications.util.Utilites;
 import ua.adeptius.myapplications.util.Visual;
 
@@ -39,8 +38,6 @@ public class LoginActivity extends AppCompatActivity {
     public static String login;
     public static String password;
     public static final String TAG = "myLog";
-    SharedPreferences sPref;
-    SharedPreferences.Editor settingsEditor;
 
     int newVersionIs;
     String fileNameOfNewVersion;
@@ -54,10 +51,12 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        if (ServiceTaskChecker.switchPortrait)
+        Settings.setsPref(getSharedPreferences("settings", MODE_PRIVATE));
+
+        if (Settings.isSwitchPortrait())
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        sPref = getSharedPreferences("settings", MODE_PRIVATE);
-        settingsEditor = sPref.edit();
+
+
 
         loginView = (EditText) findViewById(R.id.login_view);
         passwordView = (EditText) findViewById(R.id.password_view);
@@ -82,8 +81,8 @@ public class LoginActivity extends AppCompatActivity {
             }
             if (newVersionIs == 0 || CURRENT_VERSION >= newVersionIs) { // если обновлений нет
                 // Чтение логина и пароля из настроек
-                login = sPref.getString("login", "");
-                password = sPref.getString("password", "");
+                login = Settings.getCurrentLogin();
+                password = Settings.getCurrentPassword();
                 if (login != null && password != null && !login.equals("") && !password.equals("")) { // Если логин и пароль уже введён
                     if (Network.isAuthorizationOk(login, password)) {
                         goToMain(login, password);
@@ -155,9 +154,8 @@ public class LoginActivity extends AppCompatActivity {
 
     public void goToMain(String login, String password) {
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-        settingsEditor.putString("login", login);
-        settingsEditor.putString("password", password);
-        settingsEditor.commit();
+        Settings.setCurrentLogin(login);
+        Settings.setCurrentPassword(password);
         LoginActivity.this.finish();
         startActivity(intent);
     }

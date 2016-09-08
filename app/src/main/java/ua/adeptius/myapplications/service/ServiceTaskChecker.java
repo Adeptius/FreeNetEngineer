@@ -5,7 +5,6 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.os.IBinder;
@@ -21,6 +20,8 @@ import java.util.Map;
 import ua.adeptius.myapplications.connection.DataBase;
 import ua.adeptius.myapplications.activities.MainActivity;
 import ua.adeptius.myapplications.R;
+import ua.adeptius.myapplications.util.Settings;
+
 import static ua.adeptius.myapplications.activities.LoginActivity.TAG;
 
 public class ServiceTaskChecker extends Service {
@@ -33,18 +34,6 @@ public class ServiceTaskChecker extends Service {
     public static int wasNewTaskCountInLastTime = 0;
     static Context context;
     static NotificationManager mNotificationManager;
-    SharedPreferences sPref;
-    SharedPreferences.Editor settingsEditor;
-
-    public static boolean notifyNewTasks;
-    public static boolean switchSound;
-    public static boolean switchVibro;
-    public static boolean switchSubbota;
-    public static boolean switchVoskresenye;
-    public static boolean switchPortrait;
-    public static int hoursFrom;
-    public static int hoursTo;
-
 
     public int onStartCommand(Intent intent, int flags, int startId) {
         wasTasksIds = getAllTasksIds();
@@ -83,13 +72,13 @@ public class ServiceTaskChecker extends Service {
     }
 
     public static boolean isNoticeAllowedNow() {
-        if (!notifyNewTasks) return false;
+        if (!Settings.isNotifyNewTasks()) return false;
         Calendar calendar = new GregorianCalendar();
         int hours = calendar.get(Calendar.HOUR_OF_DAY);
-        if (!(hoursFrom <= hours && hours < hoursTo)) return false;
+        if (!(Settings.getHoursFrom() <= hours && hours < Settings.getHoursTo())) return false;
         int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
-        if (!switchVoskresenye && dayOfWeek == 1) return false;
-        if (!switchSubbota && dayOfWeek == 7) return false;
+        if (!Settings.isSwitchVoskresenye() && dayOfWeek == 1) return false;
+        if (!Settings.isSwitchSubbota() && dayOfWeek == 7) return false;
         return true;
     }
 
@@ -106,9 +95,9 @@ public class ServiceTaskChecker extends Service {
                         .setAutoCancel(true)
                         .setLights(Color.YELLOW, 3000, 3000)
                         .setContentText("Нажмите, что бы посмотреть");
-        if (switchSound)
+        if (Settings.isSwitchSound())
             mBuilder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
-        if (switchVibro) mBuilder.setVibrate(new long[]{1000, 1000, 1000, 1000, 1000});
+        if (Settings.isSwitchVibro()) mBuilder.setVibrate(new long[]{1000, 1000, 1000, 1000, 1000});
 
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
         stackBuilder.addParentStack(MainActivity.class);
@@ -172,39 +161,11 @@ public class ServiceTaskChecker extends Service {
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "Сервис запущен");
-        sPref = getSharedPreferences("settings", MODE_PRIVATE);
-        settingsEditor = sPref.edit();
+        Settings.setsPref(getSharedPreferences("settings", MODE_PRIVATE));
+        currentLogin = Settings.getCurrentLogin();
+        currentPassword = Settings.getCurrentPassword();
         context = this;
         mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-        currentLogin = sPref.getString("login", "");
-        currentPassword = sPref.getString("password", "");
-
-        try {
-            hoursFrom = Integer.parseInt(sPref.getString("hoursFrom", ""));
-        } catch (NumberFormatException e) {
-            hoursFrom = 8;
-        }
-        try {
-            hoursTo = Integer.parseInt(sPref.getString("hoursTo", ""));
-        } catch (NumberFormatException e) {
-            hoursTo = 18;
-        }
-
-        switchSound = Boolean.parseBoolean(sPref.getString("switchSound", ""));
-        if (sPref.getString("switchSound", "").equals("")) switchSound = true;
-
-        switchPortrait = Boolean.parseBoolean(sPref.getString("switchPortrait", ""));
-        if (sPref.getString("switchPortrait", "").equals("")) switchPortrait = true;
-        switchVibro = Boolean.parseBoolean(sPref.getString("switchVibro", ""));
-
-        switchVoskresenye = Boolean.parseBoolean(sPref.getString("switchVoskresenye", ""));
-
-        switchSubbota = Boolean.parseBoolean(sPref.getString("switchSubbota", ""));
-        if (sPref.getString("switchSubbota", "").equals("")) switchSubbota = true;
-
-        if (sPref.getString("notifyNewTasks", "").equals("")) notifyNewTasks = true;
-        else notifyNewTasks = Boolean.parseBoolean(sPref.getString("notifyNewTasks", ""));
     }
 
     @Override

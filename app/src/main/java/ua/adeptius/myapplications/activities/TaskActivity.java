@@ -39,6 +39,7 @@ import ua.adeptius.myapplications.R;
 import ua.adeptius.myapplications.connection.DataBase;
 import ua.adeptius.myapplications.orders.Task;
 import ua.adeptius.myapplications.service.ServiceTaskChecker;
+import ua.adeptius.myapplications.util.Settings;
 import ua.adeptius.myapplications.util.Utilites;
 import ua.adeptius.myapplications.util.Visual;
 
@@ -66,7 +67,7 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task);
-        if (ServiceTaskChecker.switchPortrait)
+        if (Settings.isSwitchPortrait())
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -78,7 +79,7 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
         Intent intent = getIntent();
         slot = Integer.parseInt(intent.getStringExtra("position"));
         task = MainActivity.tasks.get(slot);
-        taskIsYours = !MainActivity.currentLogin.equals(task.getWho());
+        taskIsYours = !Settings.getCurrentLogin().equals(task.getWho());
 
         phones = getAllNumbers();
         final String phoneForHeader = phones[0].substring(0, 3) + " "
@@ -372,8 +373,8 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
                     try {
                         String[] request = new String[6];
                         request[0] = "http://188.231.188.188/api/task_api_close.php";
-                        request[1] = "begun=" + MainActivity.currentLogin;
-                        request[2] = "drowssap=" + MainActivity.currentPassword;
+                        request[1] = "begun=" + Settings.getCurrentLogin();
+                        request[2] = "drowssap=" + Settings.getCurrentPassword();
                         request[3] = "act=comment";
                         request[4] = "comment=" + URLEncoder.encode(coment, "UTF-8");
                         request[5] = "task_id=" + task.getId();
@@ -411,8 +412,8 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
                     try {
                         String[] request = new String[7];
                         request[0] = "http://188.231.188.188/api/task_api_close.php";
-                        request[1] = "begun=" + MainActivity.currentLogin;
-                        request[2] = "drowssap=" + MainActivity.currentPassword;
+                        request[1] = "begun=" + Settings.getCurrentLogin();
+                        request[2] = "drowssap=" + Settings.getCurrentPassword();
                         request[3] = "act=close";
                         request[4] = "comment=" + URLEncoder.encode(coment, "UTF-8");
                         request[5] = "task_id=" + task.getId();
@@ -462,8 +463,8 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
                     try {
                         String[] request = new String[5];
                         request[0] = "http://188.231.188.188/api/task_api_close.php";
-                        request[1] = "begun=" + MainActivity.currentLogin;
-                        request[2] = "drowssap=" + MainActivity.currentPassword;
+                        request[1] = "begun=" + Settings.getCurrentLogin();
+                        request[2] = "drowssap=" + Settings.getCurrentPassword();
                         request[3] = "act=accept";
                         request[4] = "task_id=" + task.getId();
                         Map<String, String> map = new DataBase().execute(request).get().get(0);
@@ -510,8 +511,8 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
                 try {
                     String[] request = new String[7];
                     request[0] = "http://188.231.188.188/api/task_api_close.php";
-                    request[1] = "begun=" + MainActivity.currentLogin;
-                    request[2] = "drowssap=" + MainActivity.currentPassword;
+                    request[1] = "begun=" + Settings.getCurrentLogin();
+                    request[2] = "drowssap=" + Settings.getCurrentPassword();
                     request[3] = "act=close";
                     request[4] = "comment=" + URLEncoder.encode(coment, "UTF-8");
                     request[5] = "task_id=" + task.getId();

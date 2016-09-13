@@ -56,11 +56,9 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
     LinearLayout taskScrollView;
     static int slot;
     boolean taskIsYours;
-    String[] phones;
     TextView dogovor;
     LinearLayout currentHeader;
     private LinkedList<View> views = new LinkedList<>();
-    private Handler handler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,10 +78,9 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
         task = MainActivity.tasks.get(slot);
         taskIsYours = !Settings.getCurrentLogin().equals(task.getWho());
 
-        phones = getAllNumbers();
-        final String phoneForHeader = phones[0].substring(0, 3) + " "
-                + phones[0].substring(3, 6) + " "
-                + phones[0].substring(6);
+        final String phoneForHeader = task.getPhones()[0].substring(0, 3) + " "
+                + task.getPhones()[0].substring(3, 6) + " "
+                + task.getPhones()[0].substring(6);
 
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -147,7 +144,7 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
 
         views.add(addHorizontalSeparator());
 
-        //айпи, пароли....
+        // Добавляю блок с договором и паролем
         LinearLayout horizontalVievForTask = new LinearLayout(this);
         horizontalVievForTask.setOrientation(LinearLayout.HORIZONTAL);
         dogovor = new TextView(getApplicationContext());
@@ -161,6 +158,7 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
 
         TextView justVerticalSpace = new TextView(getApplicationContext());
 
+        // Добавляю блок с айпишками
         justVerticalSpace.setText(" ");
         horizontalVievForTask.addView(justVerticalSpace, WRAP_MACH);
         TextView ips = new TextView(this);
@@ -171,7 +169,6 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
         ips.setPadding(0, 0, 20, 0);
         ips.setTextSize(16);
         horizontalVievForTask.addView(ips, WRAP_MACH);
-
         dogovor.setLayoutParams(WRAP_WRAP_WEIGHT1);
         ips.setLayoutParams(WRAP_WRAP_WEIGHT1);
         horizontalVievForTask.setLayoutParams(MATCH_WRAP);
@@ -179,6 +176,7 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
 
         views.add(addHorizontalSeparator());
 
+        //Кто создал и когда
         TextView elseInfo = new TextView(this);
         StringBuffer sb = new StringBuffer("");
         sb.append(task.getCity() + " (" + task.getDistrikt() + ")").append("\n")
@@ -195,10 +193,12 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
 
         views.add(addHorizontalSeparator());
 
+        //Уведомление "Взять акт"
         if (task.getSubject().equals("Юр")) {
             addAktMessage();
         }
 
+        //Добавляю комментарии
         String[] comments = task.getComments();
         for (int i = 0; i < comments.length; i++) {
             TextView commentView = new TextView(this);
@@ -211,7 +211,7 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
             views.add(commentView);
         }
 
-        // создаю кнопку показать на карте
+        // Добавляю кнопку показать на карте
         LinearLayout buttonsLayout2 = new LinearLayout(this);
         buttonsLayout2.setOrientation(LinearLayout.HORIZONTAL);
         googleButton = new Button(this);
@@ -226,58 +226,49 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
         //создаём лэйаут с кнопками Пинга и теста кабеля
         LinearLayout buttonsLayout3 = new LinearLayout(this);
         buttonsLayout3.setOrientation(LinearLayout.HORIZONTAL);
-        pingButton = new Button(this);
-        pingButton.setText("Ping");
-        pingButton.setOnClickListener(this);
-        ((LinearLayout.LayoutParams) pingButton.getLayoutParams()).weight = 1;
-        buttonsLayout3.addView(pingButton, WRAP_WRAP);
-        cableButton = new Button(this);
-        cableButton.setText("Порт");
-        cableButton.setOnClickListener(this);
-        ((LinearLayout.LayoutParams) cableButton.getLayoutParams()).weight = 1;
-        buttonsLayout3.addView(cableButton, WRAP_WRAP);
+        if (!task.getIp().equals("Неизвестно")){
+            pingButton = new Button(this);
+            pingButton.setText("Ping");
+            pingButton.setOnClickListener(this);
+            buttonsLayout3.addView(pingButton, WRAP_WRAP);
+            ((LinearLayout.LayoutParams) pingButton.getLayoutParams()).weight = 1;
+        }
+        if (!task.getSwitch_ip().equals("Неизвестно") || !task.getSwitch_port().equals("Неизвестно")){
+            cableButton = new Button(this);
+            cableButton.setText("Порт");
+            cableButton.setOnClickListener(this);
+            buttonsLayout3.addView(cableButton, WRAP_WRAP);
+            ((LinearLayout.LayoutParams) cableButton.getLayoutParams()).weight = 1;
+        }
         buttonsLayout3.setLayoutParams(MATCH_WRAP);
         views.add(buttonsLayout3);
-
-        if (task.getIp().equals("Неизвестно"))
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                pingButton.setEnabled(false);
-            }
-        });
-
-        if (task.getSwitch_ip().equals("Неизвестно") || task.getSwitch_port().equals("Неизвестно"))
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    cableButton.setEnabled(false);
-                }
-            });
-
 
         //создаём лэйаут с кнопками комента и закрытия заявки
         LinearLayout buttonsLayout = new LinearLayout(this);
         buttonsLayout.setOrientation(LinearLayout.HORIZONTAL);
         commentButton = new Button(this);
-        closeButton = new Button(this);
-        takeButton = new Button(this);
         commentButton.setText("Комент");
-        closeButton.setText("Закрыть");
-        takeButton.setText("Взять");
         commentButton.setOnClickListener(this);
-        closeButton.setOnClickListener(this);
-        takeButton.setOnClickListener(this);
         buttonsLayout.addView(commentButton, WRAP_WRAP);
-        buttonsLayout.addView(closeButton, WRAP_WRAP);
-        if (taskIsYours) buttonsLayout.addView(takeButton, WRAP_WRAP);
-        buttonsLayout.setLayoutParams(MATCH_WRAP);
-        views.add(buttonsLayout);
         ((LinearLayout.LayoutParams) commentButton.getLayoutParams()).weight = 1;
+
+        closeButton = new Button(this);
+        closeButton.setText("Закрыть");
+        closeButton.setOnClickListener(this);
+        buttonsLayout.addView(closeButton, WRAP_WRAP);
         ((LinearLayout.LayoutParams) closeButton.getLayoutParams()).weight = 1;
-        if (taskIsYours) {
+
+        takeButton = new Button(this);
+        takeButton.setText("Взять");
+        takeButton.setOnClickListener(this);
+        if (taskIsYours){
+            buttonsLayout.addView(takeButton, WRAP_WRAP);
             ((LinearLayout.LayoutParams) takeButton.getLayoutParams()).weight = 1;
         }
+
+        buttonsLayout.setLayoutParams(MATCH_WRAP);
+        views.add(buttonsLayout);
+
         for (View v : views) {
             final View view = v;
                 HANDLER.post(new Runnable() {
@@ -345,144 +336,156 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
         // коментирование заявки
         final View vv = v;
         if (v.equals(commentButton)) { // Если нажата кнопка комментарий
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            final EditText commentView = new EditText(this);
-            commentView.setCursorVisible(true);
-            commentView.hasFocus();
-            builder.setMessage("Коментарий:");
-            builder.setCancelable(true);
-            builder.setView(commentView);
-            builder.setPositiveButton("Добавить", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    String coment = commentView.getText().toString();
-                    coment = coment.replace("!!!!!!", "!")
-                        .replace("!!!!!", "!")
-                        .replace("!!!!", "!")
-                        .replace("!!!", "!")
-                        .replace("!!", "!");
-                    boolean commentOK = false;
-                    myLog("ввели коментарий: " + coment + ". И нажали добавить");
-                    try {
-                        String[] request = new String[6];
-                        request[0] = "http://188.231.188.188/api/task_api_close.php";
-                        request[1] = "begun=" + Settings.getCurrentLogin();
-                        request[2] = "drowssap=" + Settings.getCurrentPassword();
-                        request[3] = "act=comment";
-                        request[4] = "comment=" + URLEncoder.encode(coment, "UTF-8");
-                        request[5] = "task_id=" + task.getId();
-
-                        Map<String, String> map = EXECUTOR.submit(new DataBase(request)).get().get(0);
-                        if (map.get("task").equals("comented"))  commentOK = true;
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                    if (commentOK)
-                        Snackbar.make(vv, "Коментарий добавлен", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-                    else
-                        Snackbar.make(vv, "Ошибка. Вероятно нет интернета", Snackbar.LENGTH_LONG)
-                                .setAction("Action", null).show();
-                    dialog.dismiss();
-                }
-            });
-            AlertDialog dialog = builder.create();
-            dialog.show();
+            showCommentDialog(vv);
         }
         // закрытие заявки
         if (v.equals(closeButton)) {  // Если нажата кнопка закрыть заявку
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            final EditText commentView = new EditText(this);
-            builder.setMessage("Коментарий:");
-            builder.setCancelable(true);
-            builder.setView(commentView);
-            builder.setPositiveButton("Закрыть", new DialogInterface.OnClickListener() { // просто коментарий
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    String coment = commentView.getText().toString();
-                    boolean commentOK = false;
-                    myLog("ввели коментарий: " + coment + ". И нажали закрыть");
-                    try {
-                        String[] request = new String[7];
-                        request[0] = "http://188.231.188.188/api/task_api_close.php";
-                        request[1] = "begun=" + Settings.getCurrentLogin();
-                        request[2] = "drowssap=" + Settings.getCurrentPassword();
-                        request[3] = "act=close";
-                        request[4] = "comment=" + URLEncoder.encode(coment, "UTF-8");
-                        request[5] = "task_id=" + task.getId();
-                        request[6] = "dlina=0";
-
-                        Map<String, String> map = EXECUTOR.submit(new DataBase(request)).get().get(0);
-                        if (map.get("task").equals("closed")) {
-                            commentOK = true;
-                        }
-
-                    } catch (ExecutionException e) {
-                        e.printStackTrace();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    } catch (Exception ignored) {
-                    }
-
-                    if (commentOK) {
-                        Snackbar.make(vv, "Заявка закрыта", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-                        deleteCurrentTask();
-                    }else
-                        Snackbar.make(vv, "Ошибка. Вероятно нет интернета", Snackbar.LENGTH_LONG)
-                                .setAction("Action", null).show();
-                    dialog.dismiss();
-                }
-            });
-            builder.setNegativeButton("Указать метраж и закрыть", new DialogInterface.OnClickListener() { // еще и кабель
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    String coment = commentView.getText().toString();
-                    closeWithCable(coment, vv);
-                }
-            });
-            AlertDialog dialog = builder.create();
-            dialog.show();
+            showCloseDialog(vv);
         }
         if (v.equals(takeButton)) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage("Взять заявку?");
-            builder.setCancelable(true);
-            builder.setPositiveButton("Да", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    boolean takeOK = false;
-                    try {
-                        String[] request = new String[5];
-                        request[0] = "http://188.231.188.188/api/task_api_close.php";
-                        request[1] = "begun=" + Settings.getCurrentLogin();
-                        request[2] = "drowssap=" + Settings.getCurrentPassword();
-                        request[3] = "act=accept";
-                        request[4] = "task_id=" + task.getId();
-                        Map<String, String> map = EXECUTOR.submit(new DataBase(request)).get().get(0);
-                        if (map.get("task").equals("accepted")) {
-                            takeOK = true;
-                            ServiceTaskChecker.wasTasksIds.add(task.getId());
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                    if (takeOK)
-                        Snackbar.make(vv, "Заявка взята", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-                    else
-                        Snackbar.make(vv, "Ошибка. Вероятно нет интернета", Snackbar.LENGTH_LONG)
-                                .setAction("Action", null).show();
-                    dialog.dismiss();
-                }
-            });
-            AlertDialog dialog = builder.create();
-            dialog.show();
+            showTakeDialog(vv);
         }
         if (v.equals(dogovor)){
             dogovor.setText("Договор: " + task.getCard() + "\nЛогин:     " + task.getLoglk() + "\nПароль:   " + task.getPasslk());
         }
+    }
+
+    private void showTakeDialog(final View vv) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Взять заявку?");
+        builder.setCancelable(true);
+        builder.setPositiveButton("Да", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                boolean takeOK = false;
+                try {
+                    String[] request = new String[5];
+                    request[0] = "http://188.231.188.188/api/task_api_close.php";
+                    request[1] = "begun=" + Settings.getCurrentLogin();
+                    request[2] = "drowssap=" + Settings.getCurrentPassword();
+                    request[3] = "act=accept";
+                    request[4] = "task_id=" + task.getId();
+                    Map<String, String> map = EXECUTOR.submit(new DataBase(request)).get().get(0);
+                    if (map.get("task").equals("accepted")) {
+                        takeOK = true;
+                        ServiceTaskChecker.wasTasksIds.add(task.getId());
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                if (takeOK)
+                    Snackbar.make(vv, "Заявка взята", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+                else
+                    Snackbar.make(vv, "Ошибка. Вероятно нет интернета", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                dialog.dismiss();
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void showCloseDialog(final View vv) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final EditText commentView = new EditText(this);
+        builder.setMessage("Коментарий:");
+        builder.setCancelable(true);
+        builder.setView(commentView);
+        builder.setPositiveButton("Закрыть", new DialogInterface.OnClickListener() { // просто коментарий
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String coment = commentView.getText().toString();
+                boolean commentOK = false;
+                myLog("ввели коментарий: " + coment + ". И нажали закрыть");
+                try {
+                    String[] request = new String[7];
+                    request[0] = "http://188.231.188.188/api/task_api_close.php";
+                    request[1] = "begun=" + Settings.getCurrentLogin();
+                    request[2] = "drowssap=" + Settings.getCurrentPassword();
+                    request[3] = "act=close";
+                    request[4] = "comment=" + URLEncoder.encode(coment, "UTF-8");
+                    request[5] = "task_id=" + task.getId();
+                    request[6] = "dlina=0";
+
+                    Map<String, String> map = EXECUTOR.submit(new DataBase(request)).get().get(0);
+                    if (map.get("task").equals("closed")) {
+                        commentOK = true;
+                    }
+
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                } catch (Exception ignored) {
+                }
+
+                if (commentOK) {
+                    Snackbar.make(vv, "Заявка закрыта", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+                    deleteCurrentTask();
+                }else
+                    Snackbar.make(vv, "Ошибка. Вероятно нет интернета", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                dialog.dismiss();
+            }
+        });
+        builder.setNegativeButton("Указать метраж и закрыть", new DialogInterface.OnClickListener() { // еще и кабель
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String coment = commentView.getText().toString();
+                closeWithCable(coment, vv);
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void showCommentDialog(final View vv) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final EditText commentView = new EditText(this);
+        commentView.setCursorVisible(true);
+        commentView.hasFocus();
+        builder.setMessage("Коментарий:");
+        builder.setCancelable(true);
+        builder.setView(commentView);
+        builder.setPositiveButton("Добавить", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String coment = commentView.getText().toString();
+                coment = coment.replace("!!!!!!", "!")
+                    .replace("!!!!!", "!")
+                    .replace("!!!!", "!")
+                    .replace("!!!", "!")
+                    .replace("!!", "!");
+                boolean commentOK = false;
+                myLog("ввели коментарий: " + coment + ". И нажали добавить");
+                try {
+                    String[] request = new String[6];
+                    request[0] = "http://188.231.188.188/api/task_api_close.php";
+                    request[1] = "begun=" + Settings.getCurrentLogin();
+                    request[2] = "drowssap=" + Settings.getCurrentPassword();
+                    request[3] = "act=comment";
+                    request[4] = "comment=" + URLEncoder.encode(coment, "UTF-8");
+                    request[5] = "task_id=" + task.getId();
+
+                    Map<String, String> map = EXECUTOR.submit(new DataBase(request)).get().get(0);
+                    if (map.get("task").equals("comented"))  commentOK = true;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                if (commentOK)
+                    Snackbar.make(vv, "Коментарий добавлен", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+                else
+                    Snackbar.make(vv, "Ошибка. Вероятно нет интернета", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                dialog.dismiss();
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     // Закрытие заявки с указанием метража
@@ -531,23 +534,23 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
 
 
     void callToAbon() {
-        if (phones.length == 1) {
-            Intent intent1 = new Intent(Intent.ACTION_VIEW, Uri.parse("tel:" + phones[0]));
+        if (task.getPhones().length == 1) {
+            Intent intent1 = new Intent(Intent.ACTION_VIEW, Uri.parse("tel:" + task.getPhones()[0]));
             startActivity(intent1);
         } else {
-            String[] cloneForUser = new String[phones.length];
+            String[] cloneForUser = new String[task.getPhones().length];
             for (int i = 0; i < cloneForUser.length; i++) {
-                cloneForUser[i] = "(" + phones[i].substring(0, 3) + ") "
-                        + phones[i].substring(3, 6) + " - "
-                        + phones[i].substring(6, 8) + " - "
-                        + phones[i].substring(8, 10);
+                cloneForUser[i] = "(" + task.getPhones()[i].substring(0, 3) + ") "
+                        + task.getPhones()[i].substring(3, 6) + " - "
+                        + task.getPhones()[i].substring(6, 8) + " - "
+                        + task.getPhones()[i].substring(8, 10);
             }
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Выберите номер"); // заголовок для диалога
             builder.setItems(cloneForUser, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int item) {
-                    Intent intent1 = new Intent(Intent.ACTION_VIEW, Uri.parse("tel:" + phones[item]));
+                    Intent intent1 = new Intent(Intent.ACTION_VIEW, Uri.parse("tel:" + task.getPhones()[item]));
                     startActivity(intent1);
                     dialog.dismiss();
                 }
@@ -555,43 +558,6 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
             builder.setCancelable(true);
             builder.show();
         }
-    }
-
-    String[] getAllNumbers() {
-        String s = "";
-        for (int i = 0; i < task.getComments().length; i++) {
-            s += task.getComments()[i] + "H";
-        }
-        s += task.getPhone();
-        s = s.replace("\n", "g");
-        ArrayList<String> phones = new ArrayList<>();
-        s = s.replace(" ", "");
-        s = s.replace("\n", "");
-        s = s.replace("-", "");
-        s = s.replace("(20", "");
-        String s1 = "";
-        try {
-            Pattern regex = Pattern.compile("(?:\\d{10,12})+");
-            Matcher regexMatcher = regex.matcher(s);
-            while (regexMatcher.find()) {
-                s1 = regexMatcher.group();
-                if (s1.length() == 11) s1 = s1.substring(1);
-                if (s1.length() == 12) s1 = s1.substring(2);
-                if (!phones.contains(s1)) phones.add(s1);
-            }
-        } catch (PatternSyntaxException ex) {
-        }
-        String[] result = new String[phones.size()];
-        for (int i = 0; i < phones.size(); i++) {
-            result[i] = phones.get(i);
-            myLog("пропарсил номер" + result[i]);
-        }
-
-        if (result.length == 0){
-            result = new String[1];
-            result[0] = "0000000000";
-        }
-        return result;
     }
 }
 

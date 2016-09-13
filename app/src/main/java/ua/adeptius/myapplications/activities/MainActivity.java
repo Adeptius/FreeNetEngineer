@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.transition.Explode;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -26,11 +27,20 @@ import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 import ua.adeptius.myapplications.R;
 import ua.adeptius.myapplications.connection.DataBase;
+import ua.adeptius.myapplications.connection.Network;
 import ua.adeptius.myapplications.orders.Task;
 import ua.adeptius.myapplications.service.ServiceTaskChecker;
 import ua.adeptius.myapplications.util.Settings;
@@ -52,6 +62,7 @@ public class MainActivity extends AppCompatActivity
     public static int needToShow;
     public static AlertDialog loadingDialog;
     public SwipeRefreshLayout refreshLayout;
+    private ArrayList<View> currentViews;
 
 
     @Override
@@ -70,12 +81,12 @@ public class MainActivity extends AppCompatActivity
             ServiceTaskChecker.wasTasksIds.add(idOfShoosenTask);
         ServiceTaskChecker.wasNewTaskCountInLastTime = ServiceTaskChecker.newTasksIds.size();
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setExitTransition(new Explode().setDuration(700).setStartDelay(400));
-            startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
-        } else {
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//            getWindow().setExitTransition(new Explode().setDuration(400).setStartDelay(0));
+//            startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
+//        } else {
             startActivity(intent);
-        }
+//        }
     }
 
     @Override
@@ -83,11 +94,66 @@ public class MainActivity extends AppCompatActivity
         refresh();
     }
 
+//    private boolean isWeHaveNewVersion() {
+//        try {
+//            LoginActivity.fileNameOfNewVersion = EXECUTOR.submit(new Callable<String>() {
+//                @Override
+//                public String call() throws Exception {
+//                    HttpURLConnection connection = null;
+//                    BufferedReader reader = null;
+//                    try {
+//                        URL url = new URL("http://e404.ho.ua/FreeNetEngineer/");
+//                        connection = (HttpURLConnection) url.openConnection();
+//                        connection.connect();
+//                        InputStream stream = connection.getInputStream();
+//                        reader = new BufferedReader(new InputStreamReader(stream));
+//                        String s = "";
+//                        String newVersionIs = null;
+//                        while ((s = reader.readLine()) != null) {
+//                            if (s.length() > 82) {
+//                                if (s.substring(72, 80).equals("<a href=")) {
+//                                    newVersionIs = s.substring(81, s.indexOf(".apk") + 4);
+//                                }
+//                            }
+//                        }
+//                        Log.d("====FreeNetEngineer====", "Имя файла последней версии:" + newVersionIs);
+//                        return newVersionIs;
+//                    } catch (MalformedURLException e) {
+//                        return "-1";
+//                    } catch (IOException e) {
+//                        return "-1";
+//                    } finally {
+//                        if (connection != null) {
+//                            connection.disconnect();
+//                        }
+//                        try {
+//                            if (reader != null) {
+//                                reader.close();
+//                            }
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                }
+//            }).get();
+//        } catch (Exception e) {
+//            String forToast = "Не найден файл обновлений";
+//            Visual.makeMyToast(forToast, this, getLayoutInflater(), findViewById(R.id.toast_layout_root));
+//        }
+//
+//
+//        try{
+//            LoginActivity.newVersionIs = Integer.parseInt(LoginActivity.fileNameOfNewVersion.substring(15, 17));
+//        }catch (Exception e){
+//        }
+//        return LoginActivity.newVersionIs > LoginActivity.CURRENT_VERSION;
+//    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (Settings.isSwitchPortrait())
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+//        if (Settings.isSwitchPortrait())
+//            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -98,10 +164,10 @@ public class MainActivity extends AppCompatActivity
         refreshLayout.setOnRefreshListener(this);
         refreshLayout.setColorSchemeColors(Color.GREEN, Color.BLUE, Color.parseColor("#FF9900"));
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Загрузка данных с сервера...");
-        builder.setCancelable(false);
-        loadingDialog = builder.create();
+//        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//        builder.setMessage("Загрузка данных с сервера...");
+//        builder.setCancelable(false);
+//        loadingDialog = builder.create();
 
         if (!isMyServiceRunning(ServiceTaskChecker.class))
             startService(new Intent(MainActivity.this, ServiceTaskChecker.class));
@@ -123,13 +189,28 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         needToShow = ONLY_MY_TASK;
+
+//        EXECUTOR.submit(new Runnable() {
+//            @Override
+//            public void run() {
+//                if(!Network.isAuthorizationOk(Settings.getCurrentLogin(),Settings.getCurrentPassword())){
+//                    Intent intent = new Intent(MainActivity.this, LoginActivity.class );
+//                    MainActivity.this.finish();
+//                    startActivity(intent);
+//                }
+//                if (isWeHaveNewVersion()){
+//                    Intent intent = new Intent(MainActivity.this, LoginActivity.class );
+//                    MainActivity.this.finish();
+//                    startActivity(intent);
+//                }
+//            }
+//        });
+
         refresh();
     }
 
     public void refresh() {
         interruptViewUpdate = true;
-        myLog("Обновляем экран. В массиве новых айдишек: " + ServiceTaskChecker.newTasksIds.size());
-        myLog("Обновляем экран. В массиве бывших айдишек: " + ServiceTaskChecker.wasTasksIds.size());
         if (needToShow == ONLY_MY_TASK) {
             Visual.CORPORATE_COLOR = Color.parseColor("#3f51b5");
             setTitle("Мои заявки");
@@ -138,14 +219,7 @@ public class MainActivity extends AppCompatActivity
             Visual.CORPORATE_COLOR = Color.parseColor("#757575");
             setTitle("Не назначенные");
         }
-        try { // очищаем экран, если он не пуст
-            View viev;
-            for (int i = 0; i < mainScrollView.getChildCount(); i++) {
-                viev = mainScrollView.getChildAt(i);
-                viev.setVisibility(View.GONE);
-            }
-        } catch (Exception ignored) {
-        }
+        mainScrollView.removeAllViews();
         refreshLayout.setRefreshing(true);
 
         EXECUTOR.submit(new Runnable() {
@@ -165,9 +239,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void refreshMainScreen() {
-        myLog("Рисуем заявки на экране");
         // Добавляем превью каждой заявки в наш лейаут
-        myLog("Размер массива заявок: " + tasks.size());
         if (!(tasks.size() == 0)) {
             ArrayList<View> views = new ArrayList<>();
             for (int i = 0; i < tasks.size(); i++) {
@@ -184,6 +256,7 @@ public class MainActivity extends AppCompatActivity
                 views.add(otstup);
             }
             animateInTasks(views);
+            currentViews = views;
 
 
         } else { // Сообщение: нет заявок
@@ -205,7 +278,6 @@ public class MainActivity extends AppCompatActivity
 
     private volatile boolean interruptViewUpdate;
 
-
     void animateInTasks(final ArrayList<View> views) {
         interruptViewUpdate = false;
         EXECUTOR.submit(new Runnable() {
@@ -226,7 +298,7 @@ public class MainActivity extends AppCompatActivity
                         });
                         if (!interruptViewUpdate && i % 2 != 0) {
                             try {
-                                Thread.sleep(80);
+                                Thread.sleep(0);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
@@ -359,6 +431,10 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onPostResume() {
         super.onPostResume();
-        mainScrollView.startAnimation(AnimationUtils.loadAnimation(this, R.anim.main_screen_trans));
+        if (currentViews != null) {
+            mainScrollView.removeAllViews();
+            animateInTasks(currentViews);
+        }
+//        mainScrollView.startAnimation(AnimationUtils.loadAnimation(this, R.anim.main_screen_trans));
     }
 }

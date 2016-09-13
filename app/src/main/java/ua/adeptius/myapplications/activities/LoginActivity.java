@@ -46,8 +46,8 @@ public class LoginActivity extends AppCompatActivity {
     public static String password;
 
 
-    int newVersionIs;
-    String fileNameOfNewVersion;
+    public static int newVersionIs;
+    public static String fileNameOfNewVersion;
     private EditText loginView;
     private EditText passwordView;
     private ProgressBar progressBar;

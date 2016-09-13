@@ -2,7 +2,6 @@
 .idea/
 gradle/
 
-
 # Created by https://www.gitignore.io/api/android
 
 ### Android ###
@@ -50,3 +49,6 @@ captures/
 
 ### Android Patch ###
 gen-external-apklibs
+app/libs/
+/app/.gitignore
+/.idea/

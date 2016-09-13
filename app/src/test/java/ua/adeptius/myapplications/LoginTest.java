@@ -2,15 +2,12 @@ package ua.adeptius.myapplications;
 
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import ua.adeptius.myapplications.connection.Network;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-@RunWith(MockitoJUnitRunner.class)
 public class LoginTest {
 
     @Test

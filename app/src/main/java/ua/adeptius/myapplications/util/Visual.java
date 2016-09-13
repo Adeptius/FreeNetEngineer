@@ -25,9 +25,13 @@ public class Visual {
     public static final ViewGroup.LayoutParams WRAP_WRAP = new ViewGroup
             .LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT
             , ViewGroup.LayoutParams.WRAP_CONTENT);
-    public static final ViewGroup.LayoutParams MATCH_WRAP = new ViewGroup.
-            LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT
+    public static final ViewGroup.LayoutParams MATCH_WRAP = new ViewGroup
+            .LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT
             , ViewGroup.LayoutParams.WRAP_CONTENT);
+    public static final LinearLayout.LayoutParams WRAP_WRAP_WEIGHT1 = new LinearLayout
+            .LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, 1);
+
+
 
 
     public static LinearLayout getHeader(Task task, Context context){

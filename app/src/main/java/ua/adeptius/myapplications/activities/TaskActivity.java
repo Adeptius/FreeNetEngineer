@@ -47,6 +47,7 @@ import static ua.adeptius.myapplications.util.Visual.MATCH_WRAP;
 import static ua.adeptius.myapplications.util.Visual.WRAP_MACH;
 import static ua.adeptius.myapplications.util.Visual.WRAP_WRAP;
 import static ua.adeptius.myapplications.util.Utilites.myLog;
+import static ua.adeptius.myapplications.util.Visual.WRAP_WRAP_WEIGHT1;
 
 public class TaskActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -137,7 +138,7 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
         // Имя абонента
         TextView nameField = new TextView(getApplicationContext());
         nameField.setPadding(10, 10, 0, 10);
-        nameField.setText(task.getName()); //+"\n"+task.getPhone()
+        nameField.setText(task.getName());
         nameField.setTextColor(Color.WHITE);
         nameField.setGravity(Gravity.CENTER);
         nameField.setBackgroundColor(Visual.CORPORATE_COLOR);
@@ -159,6 +160,7 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
         dogovor.setOnClickListener(this);
 
         TextView justVerticalSpace = new TextView(getApplicationContext());
+
         justVerticalSpace.setText(" ");
         horizontalVievForTask.addView(justVerticalSpace, WRAP_MACH);
         TextView ips = new TextView(this);
@@ -170,8 +172,8 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
         ips.setTextSize(16);
         horizontalVievForTask.addView(ips, WRAP_MACH);
 
-        dogovor.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
-        ips.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
+        dogovor.setLayoutParams(WRAP_WRAP_WEIGHT1);
+        ips.setLayoutParams(WRAP_WRAP_WEIGHT1);
         horizontalVievForTask.setLayoutParams(MATCH_WRAP);
         views.add(horizontalVievForTask);
 
@@ -194,16 +196,7 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
         views.add(addHorizontalSeparator());
 
         if (task.getSubject().equals("Юр")) {
-            TextView aktField = new TextView(getApplicationContext());
-            aktField.setPadding(10, 10, 0, 10);
-            aktField.setGravity(Gravity.CENTER);
-            aktField.setText("VIP! ВЗЯТЬ АКТ!");
-            aktField.setTextColor(Color.WHITE);
-            aktField.setBackgroundColor(Visual.NEW_TASKS_COLOR);
-            aktField.setTextSize(17);
-            views.add(aktField);
-
-            views.add(addHorizontalSeparator());
+            addAktMessage();
         }
 
         String[] comments = task.getComments();
@@ -225,8 +218,7 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
         googleButton.setText("Показать абонента на карте");
         googleButton.setOnClickListener(this);
         buttonsLayout2.addView(googleButton, WRAP_MACH);
-        LinearLayout.LayoutParams lParams22 = (LinearLayout.LayoutParams) googleButton.getLayoutParams();
-        lParams22.weight = 1;
+        ((LinearLayout.LayoutParams) googleButton.getLayoutParams()).weight = 1;
         buttonsLayout2.setLayoutParams(MATCH_WRAP);
         views.add(buttonsLayout2);
 
@@ -235,20 +227,17 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
         LinearLayout buttonsLayout3 = new LinearLayout(this);
         buttonsLayout3.setOrientation(LinearLayout.HORIZONTAL);
         pingButton = new Button(this);
-        cableButton = new Button(this);
         pingButton.setText("Ping");
-        cableButton.setText("Порт");
         pingButton.setOnClickListener(this);
-        cableButton.setOnClickListener(this);
+        ((LinearLayout.LayoutParams) pingButton.getLayoutParams()).weight = 1;
         buttonsLayout3.addView(pingButton, WRAP_WRAP);
+        cableButton = new Button(this);
+        cableButton.setText("Порт");
+        cableButton.setOnClickListener(this);
+        ((LinearLayout.LayoutParams) cableButton.getLayoutParams()).weight = 1;
         buttonsLayout3.addView(cableButton, WRAP_WRAP);
         buttonsLayout3.setLayoutParams(MATCH_WRAP);
         views.add(buttonsLayout3);
-
-        LinearLayout.LayoutParams lParams3 = (LinearLayout.LayoutParams) pingButton.getLayoutParams();
-        LinearLayout.LayoutParams lParams4 = (LinearLayout.LayoutParams) cableButton.getLayoutParams();
-        lParams3.weight = 1;
-        lParams4.weight = 1;
 
         if (task.getIp().equals("Неизвестно"))
         handler.post(new Runnable() {
@@ -284,19 +273,13 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
         if (taskIsYours) buttonsLayout.addView(takeButton, WRAP_WRAP);
         buttonsLayout.setLayoutParams(MATCH_WRAP);
         views.add(buttonsLayout);
-
-        LinearLayout.LayoutParams lParams1 = (LinearLayout.LayoutParams) commentButton.getLayoutParams();
-        LinearLayout.LayoutParams lParams2 = (LinearLayout.LayoutParams) closeButton.getLayoutParams();
+        ((LinearLayout.LayoutParams) commentButton.getLayoutParams()).weight = 1;
+        ((LinearLayout.LayoutParams) closeButton.getLayoutParams()).weight = 1;
         if (taskIsYours) {
-            LinearLayout.LayoutParams lParams5 = (LinearLayout.LayoutParams) takeButton.getLayoutParams();
-            lParams5.weight = 1;
+            ((LinearLayout.LayoutParams) takeButton.getLayoutParams()).weight = 1;
         }
-        lParams1.weight = 1;
-        lParams2.weight = 1;
-
         for (View v : views) {
             final View view = v;
-
                 HANDLER.post(new Runnable() {
                     @Override
                     public void run() {
@@ -314,6 +297,18 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
             }
 
         }
+    }
+
+    private void addAktMessage() {
+        TextView aktField = new TextView(getApplicationContext());
+        aktField.setPadding(10, 10, 0, 10);
+        aktField.setGravity(Gravity.CENTER);
+        aktField.setText("VIP! ВЗЯТЬ АКТ!");
+        aktField.setTextColor(Color.WHITE);
+        aktField.setBackgroundColor(Visual.NEW_TASKS_COLOR);
+        aktField.setTextSize(17);
+        views.add(aktField);
+        views.add(addHorizontalSeparator());
     }
 
 
@@ -361,11 +356,11 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     String coment = commentView.getText().toString();
-                    coment = coment.replace("!!!!!!", "!");
-                    coment = coment.replace("!!!!!", "!");
-                    coment = coment.replace("!!!!", "!");
-                    coment = coment.replace("!!!", "!");
-                    coment = coment.replace("!!", "!");
+                    coment = coment.replace("!!!!!!", "!")
+                        .replace("!!!!!", "!")
+                        .replace("!!!!", "!")
+                        .replace("!!!", "!")
+                        .replace("!!", "!");
                     boolean commentOK = false;
                     myLog("ввели коментарий: " + coment + ". И нажали добавить");
                     try {

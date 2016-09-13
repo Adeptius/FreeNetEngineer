@@ -8,7 +8,6 @@ import android.os.AsyncTask;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -31,10 +30,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ua.adeptius.myapplications.R;
-import ua.adeptius.myapplications.service.ServiceTaskChecker;
 import ua.adeptius.myapplications.util.Settings;
 
-import static ua.adeptius.myapplications.activities.LoginActivity.TAG;
+import static ua.adeptius.myapplications.util.Utilites.myLog;
 
 public class CableTestActivity extends AppCompatActivity implements TextView.OnEditorActionListener {
 
@@ -162,7 +160,7 @@ public class CableTestActivity extends AppCompatActivity implements TextView.OnE
                     if (i != 1) urlParameters += "&"; // добавлять "&" в начале не нужно
                     urlParameters += params[i];
                 }
-                Log.d(TAG, "Передаю параметры: " + urlParameters);
+                myLog("Передаю параметры: " + urlParameters);
 
                 con.setDoOutput(true);
                 DataOutputStream wr = new DataOutputStream(con.getOutputStream());
@@ -171,14 +169,14 @@ public class CableTestActivity extends AppCompatActivity implements TextView.OnE
                 wr.close();
                 BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
                 String response = in.readLine();
-                Log.d(TAG, "Получил ответ: " + response);
+                myLog("Получил ответ: " + response);
 
                 response = response.substring(2, response.length() - 2);
                 System.out.println(response);
 
 
                 String s = response.substring(1, response.length() - 2).replace("macs\":{\"", "");
-                Log.d(TAG, "s = " + s);
+                myLog("s = " + s);
                 if (s.equals("t respondin")){
                     Map<String, String> map = new HashMap<>();
                     map.put("fiz", "");
@@ -193,7 +191,7 @@ public class CableTestActivity extends AppCompatActivity implements TextView.OnE
                         map.put(keys[0], "нет данных"); // Если у ключа нет значения
                     } else {
                         map.put(keys[0], keys[1]);
-                        Log.d(TAG, "Добавляю в мапу " + keys[0] + " " + keys[1] );
+                        myLog("Добавляю в мапу " + keys[0] + " " + keys[1] );
                     }
                 }
 
@@ -226,7 +224,7 @@ public class CableTestActivity extends AppCompatActivity implements TextView.OnE
                         sb.append("Либо свич лежит,\nлибо его не существует");
                     } else {
                         if (arr.get("mac1").equals("empty")) arr.remove("mac1");
-                        Log.d(TAG, "ключей после удаления: " + arr.size());
+                        myLog("ключей после удаления: " + arr.size());
                         if (link.equals("1")) {
                             sb.append("Линк есть!\n");
                             if (arr.size() == 0) sb.append("Мака на порту нет.\n");
@@ -272,7 +270,7 @@ public class CableTestActivity extends AppCompatActivity implements TextView.OnE
             ArrayList<String> list = new ArrayList<>();
             try {
                 String url = params[0];
-                Log.d(TAG, "Подключаюсь по ссылке: " + url);
+                myLog("Подключаюсь по ссылке: " + url);
                 URL obj = new URL(url);
                 HttpURLConnection con = (HttpURLConnection) obj.openConnection();
                 con.setRequestMethod("POST");
@@ -283,7 +281,7 @@ public class CableTestActivity extends AppCompatActivity implements TextView.OnE
                     if (i != 1) urlParameters += "&"; // добавлять "&" в начале не нужно
                     urlParameters += params[i];
                 }
-                Log.d(TAG, "Передаю параметры: " + urlParameters);
+                myLog("Передаю параметры: " + urlParameters);
 
                 con.setDoOutput(true);
                 DataOutputStream wr = new DataOutputStream(con.getOutputStream());
@@ -308,7 +306,7 @@ public class CableTestActivity extends AppCompatActivity implements TextView.OnE
             super.onPostExecute(arr);
             StringBuilder sb = new StringBuilder("");
             for (String s : arr) {
-                Log.d(TAG, "Пришел ответ: " + s);
+                myLog("Пришел ответ: " + s);
             }
 
             if (arr.size() == 0) { // Если аррей оказался пустой
@@ -329,7 +327,7 @@ public class CableTestActivity extends AppCompatActivity implements TextView.OnE
                  * Если это старый ZTE или д-линк DES-3526
                  */
                 if (arr.get(0).substring(17, 26).equals("Результат") && arr.size() == 13) {
-                    Log.d(TAG, "это старый зте или д-линк");
+                    myLog("это старый зте или д-линк");
                     // Тут переделываются строки д-линка в строки зте, так как принцип одинаков, но строки разные
                     for (int i = 0; i < arr.size(); i++) {
                         String dlink = arr.get(i);
@@ -340,13 +338,13 @@ public class CableTestActivity extends AppCompatActivity implements TextView.OnE
                     }
 
                     for (int i = 4; i < 8; i++) {
-                        Log.d(TAG, arr.get(i));
+                        myLog(arr.get(i));
                         String para = i - 3 + " пара: ";
                         String s = para + arr.get(i).substring(20) + " ";
                         s = s + arr.get(i + 4).substring(17);
                         s = s.replace("Состояние ", "");
                         s = s.replace("Длинна ", "");
-                        Log.d(TAG, "строка:" + s);
+                        myLog("строка:" + s);
                         if (!((s.length() == 29 || s.length() == 23) && s.substring(8, 18).equals("неизвестно"))) { // удаление гигабитных пар на 100мбит порту
                             s = s.replace("open(2)", "Обрыв на");
                             s = s.replace("short(3)", "Замыкание на");
@@ -364,7 +362,7 @@ public class CableTestActivity extends AppCompatActivity implements TextView.OnE
                  * если это LINKSYS
                  */
                 if (arr.get(0).substring(17, 26).equals("Connected")) {
-                    Log.d(TAG, "это линксис");
+                    myLog("это линксис");
                     String s = "";
                     for (int i = 0; i < arr.size(); i++) {
                         if (arr.get(i).length() > 12) {

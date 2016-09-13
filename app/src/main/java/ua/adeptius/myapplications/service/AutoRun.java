@@ -3,15 +3,14 @@ package ua.adeptius.myapplications.service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
-import static ua.adeptius.myapplications.activities.LoginActivity.TAG;
+import static ua.adeptius.myapplications.util.Utilites.myLog;
 
 
 public class AutoRun extends BroadcastReceiver {
 
 
     public void onReceive(Context context, Intent intent) {
-        Log.d(TAG, "onReceive " + intent.getAction());
+        myLog("onReceive " + intent.getAction());
         context.startService(new Intent(context, ServiceTaskChecker.class));
     }
 }

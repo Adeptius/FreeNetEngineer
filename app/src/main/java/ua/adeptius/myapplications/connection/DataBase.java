@@ -1,6 +1,5 @@
 package ua.adeptius.myapplications.connection;
 
-import android.os.AsyncTask;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -13,16 +12,23 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import static ua.adeptius.myapplications.activities.LoginActivity.TAG;
+import java.util.concurrent.Callable;
+import static ua.adeptius.myapplications.util.Utilites.EXECUTOR;
+import static ua.adeptius.myapplications.util.Utilites.myLog;
 
-public class DataBase extends AsyncTask<String, String, ArrayList<Map<String, String>>>{
+public class DataBase implements Callable<ArrayList<Map<String, String>>>{
+
+    private String[] params;
+
+    public DataBase(String... params) {
+        this.params = params;
+    }
 
     @Override
-    protected ArrayList<Map<String, String>> doInBackground(String... params) {
+    public ArrayList<Map<String, String>> call() throws Exception {
         try {
             String url = params[0];
-            Log.d(TAG, "Подключаюсь по ссылке: " + url);
+            myLog("Подключаюсь по ссылке: " + url);
             URL obj = new URL(url);
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
             con.setRequestMethod("POST");
@@ -33,7 +39,7 @@ public class DataBase extends AsyncTask<String, String, ArrayList<Map<String, St
                 if(i != 1) urlParameters += "&"; // добавлять "&" в начале не нужно
                 urlParameters+= params[i];
             }
-            Log.d(TAG, "Передаю параметры: " + urlParameters);
+            myLog("Передаю параметры: " + urlParameters);
 
             con.setDoOutput(true);
             DataOutputStream wr = new DataOutputStream(con.getOutputStream());
@@ -41,7 +47,7 @@ public class DataBase extends AsyncTask<String, String, ArrayList<Map<String, St
             wr.flush(); wr.close();
             BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
             String response = in.readLine();
-            Log.d(TAG, "Получил ответ: " + response);
+            myLog("Получил ответ: " + response);
             ArrayList<Map<String, String>> resultMap = new ArrayList<>();
             response = response.replace(" : ", ":");
             String[] splitResult = null;
@@ -53,7 +59,7 @@ public class DataBase extends AsyncTask<String, String, ArrayList<Map<String, St
 
             for (int i = 0; i < splitResult.length; i++) {
                 String s = splitResult[i].substring(1, splitResult[i].length()-1 );
-                Log.d(TAG, "Каждая строка по очереди до создания мапы:" + s);
+                myLog("Каждая строка по очереди до создания мапы:" + s);
                 Map<String, String> map = new HashMap<>();
                 String[] pairs = s.split("\",\"");
                 for (int j = 0; j < pairs.length; j++) {
@@ -65,10 +71,9 @@ public class DataBase extends AsyncTask<String, String, ArrayList<Map<String, St
             }
             return resultMap;
         }catch (MalformedURLException e){ e.printStackTrace(); }
-         catch (IOException e)          { e.printStackTrace(); }
+        catch (IOException e)          { e.printStackTrace(); }
         return null;
     }
-
 
     static String ping(String ip){
         try {
@@ -76,7 +81,7 @@ public class DataBase extends AsyncTask<String, String, ArrayList<Map<String, St
             String[] request = new String[2];
             request[0] = "http://188.231.188.188/api/ping_api.php";
             request[1] = "ip=" + ip;
-            String result = new DataBase().execute(request).get().get(0).get("Scan report for");
+            String result = EXECUTOR.submit(new DataBase(request)).get().get(0).get("Scan report for");
             if(result.contains("Host is up")){
                 float ms = Float.parseFloat(result.substring(result.indexOf("up")+4,result.lastIndexOf("s")))*1000;
                 int mss = (int)ms;
@@ -87,4 +92,7 @@ public class DataBase extends AsyncTask<String, String, ArrayList<Map<String, St
             return result;
         } catch (Exception e){return "Сбой (Нет интернета на устройстве)";}
     }
+
+
+
 }

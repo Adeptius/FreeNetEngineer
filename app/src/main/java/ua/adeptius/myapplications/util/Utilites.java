@@ -1,6 +1,7 @@
 package ua.adeptius.myapplications.util;
 
 import android.os.Handler;
+import android.util.Log;
 
 import java.security.MessageDigest;
 import java.util.Map;
@@ -57,4 +58,7 @@ public class Utilites {
         return task;
     }
 
+    public static void myLog(String message){
+        Log.d("====FreeNetEngineer====", message);
+    }
 }

@@ -15,7 +15,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,7 +39,6 @@ import ua.adeptius.myapplications.connection.DataBase;
 import ua.adeptius.myapplications.orders.Task;
 import ua.adeptius.myapplications.service.ServiceTaskChecker;
 import ua.adeptius.myapplications.util.Settings;
-import ua.adeptius.myapplications.util.Utilites;
 import ua.adeptius.myapplications.util.Visual;
 
 import static ua.adeptius.myapplications.util.Utilites.EXECUTOR;
@@ -48,7 +46,7 @@ import static ua.adeptius.myapplications.util.Utilites.HANDLER;
 import static ua.adeptius.myapplications.util.Visual.MATCH_WRAP;
 import static ua.adeptius.myapplications.util.Visual.WRAP_MACH;
 import static ua.adeptius.myapplications.util.Visual.WRAP_WRAP;
-import static ua.adeptius.myapplications.activities.LoginActivity.TAG;
+import static ua.adeptius.myapplications.util.Utilites.myLog;
 
 public class TaskActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -369,7 +367,7 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
                     coment = coment.replace("!!!", "!");
                     coment = coment.replace("!!", "!");
                     boolean commentOK = false;
-                    Log.d(TAG, "ввели коментарий: " + coment + ". И нажали добавить");
+                    myLog("ввели коментарий: " + coment + ". И нажали добавить");
                     try {
                         String[] request = new String[6];
                         request[0] = "http://188.231.188.188/api/task_api_close.php";
@@ -379,7 +377,7 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
                         request[4] = "comment=" + URLEncoder.encode(coment, "UTF-8");
                         request[5] = "task_id=" + task.getId();
 
-                        Map<String, String> map = new DataBase().execute(request).get().get(0);
+                        Map<String, String> map = EXECUTOR.submit(new DataBase(request)).get().get(0);
                         if (map.get("task").equals("comented"))  commentOK = true;
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -408,7 +406,7 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
                 public void onClick(DialogInterface dialog, int which) {
                     String coment = commentView.getText().toString();
                     boolean commentOK = false;
-                    Log.d(TAG, "ввели коментарий: " + coment + ". И нажали закрыть");
+                    myLog("ввели коментарий: " + coment + ". И нажали закрыть");
                     try {
                         String[] request = new String[7];
                         request[0] = "http://188.231.188.188/api/task_api_close.php";
@@ -419,7 +417,7 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
                         request[5] = "task_id=" + task.getId();
                         request[6] = "dlina=0";
 
-                        Map<String, String> map = new DataBase().execute(request).get().get(0);
+                        Map<String, String> map = EXECUTOR.submit(new DataBase(request)).get().get(0);
                         if (map.get("task").equals("closed")) {
                             commentOK = true;
                         }
@@ -467,7 +465,7 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
                         request[2] = "drowssap=" + Settings.getCurrentPassword();
                         request[3] = "act=accept";
                         request[4] = "task_id=" + task.getId();
-                        Map<String, String> map = new DataBase().execute(request).get().get(0);
+                        Map<String, String> map = EXECUTOR.submit(new DataBase(request)).get().get(0);
                         if (map.get("task").equals("accepted")) {
                             takeOK = true;
                             ServiceTaskChecker.wasTasksIds.add(task.getId());
@@ -505,9 +503,9 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String cable = cableView.getText().toString();
-                Log.d(TAG, "ввели коментарий: " + coment + ", кабель: " + cable + "м. И нажали добавить");
+                myLog("ввели коментарий: " + coment + ", кабель: " + cable + "м. И нажали добавить");
                 boolean commentOK = false;
-                Log.d(TAG, "ввели коментарий: " + coment + ". И нажали закрыть");
+                myLog("ввели коментарий: " + coment + ". И нажали закрыть");
                 try {
                     String[] request = new String[7];
                     request[0] = "http://188.231.188.188/api/task_api_close.php";
@@ -517,7 +515,7 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
                     request[4] = "comment=" + URLEncoder.encode(coment, "UTF-8");
                     request[5] = "task_id=" + task.getId();
                     request[6] = "dlina=" + cable;
-                    Map<String, String> map = new DataBase().execute(request).get().get(0);
+                    Map<String, String> map = EXECUTOR.submit(new DataBase(request)).get().get(0);
                     if (map.get("task").equals("closed")) commentOK = true;
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -591,7 +589,7 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
         String[] result = new String[phones.size()];
         for (int i = 0; i < phones.size(); i++) {
             result[i] = phones.get(i);
-            Log.d(TAG, "пропарсил номер" + result[i]);
+            myLog("пропарсил номер" + result[i]);
         }
 
         if (result.length == 0){

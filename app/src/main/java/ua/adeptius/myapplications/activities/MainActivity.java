@@ -3,14 +3,12 @@ package ua.adeptius.myapplications.activities;
 import android.app.ActivityManager;
 import android.app.ActivityOptions;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.transition.Explode;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -39,9 +37,9 @@ import ua.adeptius.myapplications.util.Settings;
 import ua.adeptius.myapplications.util.Utilites;
 import ua.adeptius.myapplications.util.Visual;
 
-import static ua.adeptius.myapplications.activities.LoginActivity.TAG;
 import static ua.adeptius.myapplications.util.Utilites.EXECUTOR;
 import static ua.adeptius.myapplications.util.Utilites.HANDLER;
+import static ua.adeptius.myapplications.util.Utilites.myLog;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener, SwipeRefreshLayout.OnRefreshListener {
@@ -130,8 +128,8 @@ public class MainActivity extends AppCompatActivity
 
     public void refresh() {
         interruptViewUpdate = true;
-        Log.d(TAG, "Обновляем экран. В массиве новых айдишек: " + ServiceTaskChecker.newTasksIds.size());
-        Log.d(TAG, "Обновляем экран. В массиве бывших айдишек: " + ServiceTaskChecker.wasTasksIds.size());
+        myLog("Обновляем экран. В массиве новых айдишек: " + ServiceTaskChecker.newTasksIds.size());
+        myLog("Обновляем экран. В массиве бывших айдишек: " + ServiceTaskChecker.wasTasksIds.size());
         if (needToShow == ONLY_MY_TASK) {
             Visual.CORPORATE_COLOR = Color.parseColor("#3f51b5");
             setTitle("Мои заявки");
@@ -167,9 +165,9 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void refreshMainScreen() {
-        Log.d(TAG, "Рисуем заявки на экране");
+        myLog("Рисуем заявки на экране");
         // Добавляем превью каждой заявки в наш лейаут
-        Log.d(TAG, "Размер массива заявок: " + tasks.size());
+        myLog("Размер массива заявок: " + tasks.size());
         if (!(tasks.size() == 0)) {
             ArrayList<View> views = new ArrayList<>();
             for (int i = 0; i < tasks.size(); i++) {
@@ -245,7 +243,7 @@ public class MainActivity extends AppCompatActivity
             tasks = null;
             String[] request = null;
             if (needToShow == ONLY_MY_TASK) { // Тут должно быть ONLY_MY_TASK
-                Log.d(TAG, "Запрашиваю назначенные заявки");
+                myLog("Запрашиваю назначенные заявки");
                 request = new String[3];
                 request[0] = "http://188.231.188.188/api/task_api.php";
                 request[1] = "begun=" + Settings.getCurrentLogin();
@@ -253,7 +251,7 @@ public class MainActivity extends AppCompatActivity
             }
 
             if (needToShow == ONLY_NOT_ASSIGNED_TASK) { // тут должно быть ONLY_NOT_ASSIGNED_TASK
-                Log.d(TAG, "Запрашиваю не назначенные заявки");
+                myLog("Запрашиваю не назначенные заявки");
                 request = new String[4];
                 request[0] = "http://188.231.188.188/api/notassigned_api.php";
                 request[1] = "begun=" + Settings.getCurrentLogin();
@@ -261,10 +259,10 @@ public class MainActivity extends AppCompatActivity
                 request[3] = "taccepted=notassigned";
             }
 
-            ArrayList<Map<String, String>> arrayMap = new DataBase().execute(request).get();
+            ArrayList<Map<String, String>> arrayMap = EXECUTOR.submit(new DataBase(request)).get();
             tasks = new ArrayList<>(); // будем все таски пихать сюда
             if (!arrayMap.get(0).containsKey("error")) { // если нам не пришло [{"error":"No_tasks"}]
-                Log.d(TAG, "Заявки есть. Создаю обьекты - заявки");
+                myLog("Заявки есть. Создаю обьекты - заявки");
                 for (int i = 0; i < arrayMap.size(); i++) { // Для каждого обьекта "заявка"
                     Map<String, String> temp = arrayMap.get(i);
                     tasks.add(Utilites.createTask(temp));

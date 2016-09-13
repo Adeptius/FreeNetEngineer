@@ -10,7 +10,6 @@ import android.media.RingtoneManager;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -21,8 +20,9 @@ import ua.adeptius.myapplications.connection.DataBase;
 import ua.adeptius.myapplications.activities.MainActivity;
 import ua.adeptius.myapplications.R;
 import ua.adeptius.myapplications.util.Settings;
+import static ua.adeptius.myapplications.util.Utilites.myLog;
 
-import static ua.adeptius.myapplications.activities.LoginActivity.TAG;
+import static ua.adeptius.myapplications.util.Utilites.EXECUTOR;
 
 public class ServiceTaskChecker extends Service {
 
@@ -49,11 +49,11 @@ public class ServiceTaskChecker extends Service {
                             if (!wasTasksIds.contains(collected.get(i))) {
                                 newTasksIds.add(collected.get(i));
                                 wasTasksIds.add(collected.get(i));
-                                Log.d(TAG, "Появилась новая заявка!!! id: " + collected.get(i));
+                                myLog("Появилась новая заявка!!! id: " + collected.get(i));
                             }
                         }
 
-                        Log.d(TAG, "Новых заявок: " + newTasksIds.size());
+                        myLog("Новых заявок: " + newTasksIds.size());
                        // if (newTasksIds.size() > 0) {
                             if (wasNewTaskCountInLastTime != newTasksIds.size()) {
                                 showNotification(newTasksIds.size());
@@ -117,38 +117,38 @@ public class ServiceTaskChecker extends Service {
 
     private ArrayList<String> getAllTasksIds() {// загрузка всех текущих айдишек
         ArrayList<String> ids = new ArrayList<>();
-        Log.d(TAG, "Запрашиваю айди заявок");
+        myLog("Запрашиваю айди заявок");
         String[] request = new String[3];
         request[0] = "http://188.231.188.188/api/task_api_id.php";
         request[1] = "begun=" + currentLogin;
         request[2] = "drowssap=" + currentPassword;
 
         try {
-            ArrayList<Map<String, String>> arrayMap = new DataBase().execute(request).get();
+            ArrayList<Map<String, String>> arrayMap = EXECUTOR.submit(new DataBase(request)).get();
             for (int i = 0; i < arrayMap.size(); i++) {
                 Map<String, String> map = arrayMap.get(i);
                 if(map.get("id") != null){
                     ids.add(map.get("id"));
-                    Log.d(TAG, "Служба получила айдишку: " + map.get("id"));
+                    myLog("Служба получила айдишку: " + map.get("id"));
                 }
             }
 
             for (int i = newTasksIds.size() - 1; i >= 0; i--) {
-                Log.d(TAG, "Список новых заявок содержит id: " + newTasksIds.get(i));
+                myLog("Список новых заявок содержит id: " + newTasksIds.get(i));
                 if (!ids.contains(newTasksIds.get(i))) {
-                    Log.d(TAG, "Новая id уже не существует. Удаляю: " + newTasksIds.get(i));
+                    myLog("Новая id уже не существует. Удаляю: " + newTasksIds.get(i));
                     newTasksIds.remove(i);
                 }
             }
             for (int i = wasTasksIds.size() - 1; i >= 0; i--) {
-                Log.d(TAG, "Список старых заявок содержит id: " + wasTasksIds.get(i));
+                myLog("Список старых заявок содержит id: " + wasTasksIds.get(i));
                 if (!ids.contains(wasTasksIds.get(i))) {
-                    Log.d(TAG, "Старая id уже не существует. Удаляю: " + wasTasksIds.get(i));
+                    myLog("Старая id уже не существует. Удаляю: " + wasTasksIds.get(i));
                     wasTasksIds.remove(i);
                 }
             }
         } catch (Exception ignored) {
-            Log.d(TAG, "Ошибка получения id из базы в фоне");
+            myLog("Ошибка получения id из базы в фоне");
         }
         return ids;
     }
@@ -160,7 +160,7 @@ public class ServiceTaskChecker extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d(TAG, "Сервис запущен");
+        myLog("Сервис запущен");
         Settings.setsPref(getSharedPreferences("settings", MODE_PRIVATE));
         currentLogin = Settings.getCurrentLogin();
         currentPassword = Settings.getCurrentPassword();
@@ -171,6 +171,6 @@ public class ServiceTaskChecker extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d(TAG, "Сервис уничтожен: " + stopSelfResult(1));
+        myLog("Сервис уничтожен: " + stopSelfResult(1));
     }
 }

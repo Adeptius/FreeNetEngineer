@@ -10,12 +10,10 @@ import android.view.View;
 import android.widget.Toast;
 
 import ua.adeptius.myapplications.R;
-import ua.adeptius.myapplications.service.ServiceTaskChecker;
 import ua.adeptius.myapplications.util.Settings;
 import ua.adeptius.myapplications.util.Visual;
 
 public class AboutActivity extends AppCompatActivity implements View.OnClickListener {
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

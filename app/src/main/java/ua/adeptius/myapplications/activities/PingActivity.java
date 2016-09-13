@@ -10,7 +10,6 @@ import android.widget.TextView;
 
 import ua.adeptius.myapplications.R;
 import ua.adeptius.myapplications.connection.Ping;
-import ua.adeptius.myapplications.service.ServiceTaskChecker;
 import ua.adeptius.myapplications.util.Settings;
 import ua.adeptius.myapplications.util.Visual;
 

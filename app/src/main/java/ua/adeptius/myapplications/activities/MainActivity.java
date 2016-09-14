@@ -1,14 +1,14 @@
 package ua.adeptius.myapplications.activities;
 
 import android.app.ActivityManager;
-import android.app.ActivityOptions;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
-import android.os.Build;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
-import android.transition.Explode;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -80,13 +80,7 @@ public class MainActivity extends AppCompatActivity
         if (!ServiceTaskChecker.wasTasksIds.contains(idOfShoosenTask))
             ServiceTaskChecker.wasTasksIds.add(idOfShoosenTask);
         ServiceTaskChecker.wasNewTaskCountInLastTime = ServiceTaskChecker.newTasksIds.size();
-
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//            getWindow().setExitTransition(new Explode().setDuration(400).setStartDelay(0));
-//            startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
-//        } else {
-            startActivity(intent);
-//        }
+        startActivity(intent);
     }
 
     @Override
@@ -94,66 +88,15 @@ public class MainActivity extends AppCompatActivity
         refresh();
     }
 
-//    private boolean isWeHaveNewVersion() {
-//        try {
-//            LoginActivity.fileNameOfNewVersion = EXECUTOR.submit(new Callable<String>() {
-//                @Override
-//                public String call() throws Exception {
-//                    HttpURLConnection connection = null;
-//                    BufferedReader reader = null;
-//                    try {
-//                        URL url = new URL("http://e404.ho.ua/FreeNetEngineer/");
-//                        connection = (HttpURLConnection) url.openConnection();
-//                        connection.connect();
-//                        InputStream stream = connection.getInputStream();
-//                        reader = new BufferedReader(new InputStreamReader(stream));
-//                        String s = "";
-//                        String newVersionIs = null;
-//                        while ((s = reader.readLine()) != null) {
-//                            if (s.length() > 82) {
-//                                if (s.substring(72, 80).equals("<a href=")) {
-//                                    newVersionIs = s.substring(81, s.indexOf(".apk") + 4);
-//                                }
-//                            }
-//                        }
-//                        Log.d("====FreeNetEngineer====", "Имя файла последней версии:" + newVersionIs);
-//                        return newVersionIs;
-//                    } catch (MalformedURLException e) {
-//                        return "-1";
-//                    } catch (IOException e) {
-//                        return "-1";
-//                    } finally {
-//                        if (connection != null) {
-//                            connection.disconnect();
-//                        }
-//                        try {
-//                            if (reader != null) {
-//                                reader.close();
-//                            }
-//                        } catch (IOException e) {
-//                            e.printStackTrace();
-//                        }
-//                    }
-//                }
-//            }).get();
-//        } catch (Exception e) {
-//            String forToast = "Не найден файл обновлений";
-//            Visual.makeMyToast(forToast, this, getLayoutInflater(), findViewById(R.id.toast_layout_root));
-//        }
-//
-//
-//        try{
-//            LoginActivity.newVersionIs = Integer.parseInt(LoginActivity.fileNameOfNewVersion.substring(15, 17));
-//        }catch (Exception e){
-//        }
-//        return LoginActivity.newVersionIs > LoginActivity.CURRENT_VERSION;
-//    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        if (Settings.isSwitchPortrait())
-//            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        myLog("загружен мэйн активити");
+        Settings.setsPref(getSharedPreferences("settings", MODE_PRIVATE));
+        if (Settings.isSwitchPortrait())
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -163,11 +106,6 @@ public class MainActivity extends AppCompatActivity
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.swiperefresh);
         refreshLayout.setOnRefreshListener(this);
         refreshLayout.setColorSchemeColors(Color.GREEN, Color.BLUE, Color.parseColor("#FF9900"));
-
-//        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-//        builder.setMessage("Загрузка данных с сервера...");
-//        builder.setCancelable(false);
-//        loadingDialog = builder.create();
 
         if (!isMyServiceRunning(ServiceTaskChecker.class))
             startService(new Intent(MainActivity.this, ServiceTaskChecker.class));
@@ -190,21 +128,26 @@ public class MainActivity extends AppCompatActivity
 
         needToShow = ONLY_MY_TASK;
 
-//        EXECUTOR.submit(new Runnable() {
-//            @Override
-//            public void run() {
-//                if(!Network.isAuthorizationOk(Settings.getCurrentLogin(),Settings.getCurrentPassword())){
-//                    Intent intent = new Intent(MainActivity.this, LoginActivity.class );
-//                    MainActivity.this.finish();
-//                    startActivity(intent);
-//                }
-//                if (isWeHaveNewVersion()){
-//                    Intent intent = new Intent(MainActivity.this, LoginActivity.class );
-//                    MainActivity.this.finish();
-//                    startActivity(intent);
-//                }
-//            }
-//        });
+        if (!isCurrentDeviceOnline())
+            showDialogInternetIsAbsent();
+
+        EXECUTOR.submit(new Runnable() {
+            @Override
+            public void run() {
+                if(!Network.isAuthorizationOk(Settings.getCurrentLogin(),Settings.getCurrentPassword())){
+                    myLog("не авторизировано - перехожу на страницу логина");
+                    Intent intent = new Intent(MainActivity.this, LoginActivity.class );
+                    MainActivity.this.finish();
+                    startActivity(intent);
+                }
+                if (isWeHaveNewVersion()){
+                    myLog("Есть новая версия - перехожу на страницу логина");
+                    Intent intent = new Intent(MainActivity.this, LoginActivity.class );
+                    MainActivity.this.finish();
+                    startActivity(intent);
+                }
+            }
+        });
 
         refresh();
     }
@@ -298,7 +241,7 @@ public class MainActivity extends AppCompatActivity
                         });
                         if (!interruptViewUpdate && i % 2 != 0) {
                             try {
-                                Thread.sleep(0);
+                                Thread.sleep(80);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
@@ -364,6 +307,82 @@ public class MainActivity extends AppCompatActivity
             }
         }
         return false;
+    }
+
+    public boolean isCurrentDeviceOnline() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
+    }
+
+    private void showDialogInternetIsAbsent() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Программа не работает\nбез интернета.");
+        builder.setCancelable(false);
+        builder.setPositiveButton("Закрыть", new DialogInterface.OnClickListener() { // Кнопка ОК
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                MainActivity.this.finish();
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private boolean isWeHaveNewVersion() {
+        try {
+            LoginActivity.fileNameOfNewVersion = EXECUTOR.submit(new Callable<String>() {
+                @Override
+                public String call() throws Exception {
+                    HttpURLConnection connection = null;
+                    BufferedReader reader = null;
+                    try {
+                        URL url = new URL("http://e404.ho.ua/FreeNetEngineer/");
+                        connection = (HttpURLConnection) url.openConnection();
+                        connection.connect();
+                        InputStream stream = connection.getInputStream();
+                        reader = new BufferedReader(new InputStreamReader(stream));
+                        String s = "";
+                        String newVersionIs = null;
+                        while ((s = reader.readLine()) != null) {
+                            if (s.length() > 82) {
+                                if (s.substring(72, 80).equals("<a href=")) {
+                                    newVersionIs = s.substring(81, s.indexOf(".apk") + 4);
+                                }
+                            }
+                        }
+                        Log.d("====FreeNetEngineer====", "Имя файла последней версии:" + newVersionIs);
+                        return newVersionIs;
+                    } catch (MalformedURLException e) {
+                        return "-1";
+                    } catch (IOException e) {
+                        return "-1";
+                    } finally {
+                        if (connection != null) {
+                            connection.disconnect();
+                        }
+                        try {
+                            if (reader != null) {
+                                reader.close();
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }).get();
+        } catch (Exception e) {
+            String forToast = "Не найден файл обновлений";
+            Visual.makeMyToast(forToast, this, getLayoutInflater(), findViewById(R.id.toast_layout_root));
+        }
+
+
+        try{
+            LoginActivity.newVersionIs = Integer.parseInt(LoginActivity.fileNameOfNewVersion.substring(15, 17));
+        }catch (Exception e){
+        }
+        return LoginActivity.newVersionIs > LoginActivity.CURRENT_VERSION;
     }
 
     @Override

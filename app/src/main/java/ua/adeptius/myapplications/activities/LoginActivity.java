@@ -41,7 +41,7 @@ import static ua.adeptius.myapplications.util.Utilites.myLog;
 
 public class LoginActivity extends AppCompatActivity {
 
-    public static final int CURRENT_VERSION = 20;
+    public static final int CURRENT_VERSION = 21;
     public static String login;
     public static String password;
 
@@ -58,6 +58,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        myLog("загружен логин активити");
         Settings.setsPref(getSharedPreferences("settings", MODE_PRIVATE));
 
         if (Settings.isSwitchPortrait())
@@ -113,7 +114,7 @@ public class LoginActivity extends AppCompatActivity {
     private void showDialogInternetIsAbsent() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("Программа не работает\nбез интернета.");
-        builder.setCancelable(true);
+        builder.setCancelable(false);
         builder.setPositiveButton("Закрыть", new DialogInterface.OnClickListener() { // Кнопка ОК
             @Override
             public void onClick(DialogInterface dialog, int which) {

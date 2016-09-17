@@ -60,7 +60,6 @@ public class MainActivity extends AppCompatActivity
     public static final int ONLY_MY_TASK = 1;
     public static final int ONLY_NOT_ASSIGNED_TASK = 3;
     public static int needToShow;
-    public static AlertDialog loadingDialog;
     public SwipeRefreshLayout refreshLayout;
     private ArrayList<View> currentViews;
 
@@ -134,14 +133,13 @@ public class MainActivity extends AppCompatActivity
         EXECUTOR.submit(new Runnable() {
             @Override
             public void run() {
-                if(!Network.isAuthorizationOk(Settings.getCurrentLogin(),Settings.getCurrentPassword())){
-                    myLog("не авторизировано - перехожу на страницу логина");
+                if (isWeHaveNewVersion()){
+                    myLog("Есть новая версия - перехожу на страницу логина");
                     Intent intent = new Intent(MainActivity.this, LoginActivity.class );
                     MainActivity.this.finish();
                     startActivity(intent);
-                }
-                if (isWeHaveNewVersion()){
-                    myLog("Есть новая версия - перехожу на страницу логина");
+                }else if(!Network.isAuthorizationOk(Settings.getCurrentLogin(),Settings.getCurrentPassword())){
+                    myLog("не авторизировано - перехожу на страницу логина");
                     Intent intent = new Intent(MainActivity.this, LoginActivity.class );
                     MainActivity.this.finish();
                     startActivity(intent);
@@ -454,6 +452,5 @@ public class MainActivity extends AppCompatActivity
             mainScrollView.removeAllViews();
             animateInTasks(currentViews);
         }
-//        mainScrollView.startAnimation(AnimationUtils.loadAnimation(this, R.anim.main_screen_trans));
     }
 }

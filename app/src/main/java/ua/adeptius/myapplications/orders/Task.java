@@ -192,6 +192,19 @@ public class Task {
         this.rterm = rterm;
     }
 
+    public void setTermin(String termin) {
+        try {
+            if (termin.length() > 3) {
+                termin = termin.substring(0, 3);
+                if (termin.substring(0, 3).equals("0.0"))
+                    termin = "0";
+            }
+            termin.replace(".0", "");
+        } catch (Exception ignored) {
+        }
+        this.termin = termin;
+    }
+
     public void setGateway(String gateway) {
         if (gateway == null) this.gateway = "Неизвестно";
         else this.gateway = gateway;
@@ -288,19 +301,6 @@ public class Task {
     public void setSwitch_port(String switch_port) {
         if (switch_port == null) this.switch_port = "Неизвестно";
         else this.switch_port = switch_port;
-    }
-
-    public void setTermin(String termin) {
-        try {
-            if (termin.length() > 3) {
-                termin = termin.substring(0, 3);
-                if (termin.substring(0, 3).equals("0.0"))
-                    termin = "0";
-            }
-            termin.replace(".0", "");
-        } catch (Exception ignored) {
-        }
-        this.termin = termin;
     }
 
     public void setType(String type) {

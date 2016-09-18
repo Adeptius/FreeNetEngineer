@@ -93,11 +93,11 @@ public class Visual {
 
             if (task.getType_name().equals("СТК") || task.getType_name().equals("Нет линка по оптике")){
                 tv2.setTextColor(Color.YELLOW);
-                if (rterm > 1) tv2.setTextColor(Color.parseColor("#ef5350"));
+                if (rterm >= 1) tv2.setTextColor(Color.parseColor("#ef5350"));
             }else{
                 tv2.setTextColor(Color.GREEN);
-                if (rterm > 1) tv2.setTextColor(Color.YELLOW);
-                if (rterm > 2) tv2.setTextColor(Color.parseColor("#ef5350"));
+                if (rterm >= 1) tv2.setTextColor(Color.YELLOW);
+                if (rterm >= 2) tv2.setTextColor(Color.parseColor("#ef5350"));
             }
         }catch (Exception e){e.printStackTrace();}
         String termToShow = "" + task.getRterm();

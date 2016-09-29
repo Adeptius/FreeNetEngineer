@@ -341,7 +341,7 @@ public class MainActivity extends AppCompatActivity
                         connection.connect();
                         InputStream stream = connection.getInputStream();
                         reader = new BufferedReader(new InputStreamReader(stream));
-                        String s = "";
+                        String s;
                         String newVersionIs = null;
                         while ((s = reader.readLine()) != null) {
                             if (s.length() > 82) {
@@ -402,10 +402,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-//        if (id == R.id.refresh_button) {
-//            refresh();
-//            return true;
-//        }
         return super.onOptionsItemSelected(item);
     }
 

@@ -90,9 +90,6 @@ public class DataBase implements Callable<ArrayList<Map<String, String>>>{
             }else return "Ответа нет.";
             Log.d("myLogs", "Получен ответ пинг: " + result);
             return result;
-        } catch (Exception e){return "Сбой (Нет интернета на устройстве)";}
+        } catch (Exception e){return "Сбой (Возможно нет интернета)";}
     }
-
-
-
 }

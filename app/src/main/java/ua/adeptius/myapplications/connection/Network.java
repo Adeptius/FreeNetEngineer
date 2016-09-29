@@ -3,7 +3,6 @@ package ua.adeptius.myapplications.connection;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-
 import static ua.adeptius.myapplications.util.Utilites.EXECUTOR;
 import static ua.adeptius.myapplications.util.Utilites.myLog;
 
@@ -30,7 +29,4 @@ public class Network {
     /**
      * Загрузка новой версии c прогресс-диалогом
      */
-
-
-
 }

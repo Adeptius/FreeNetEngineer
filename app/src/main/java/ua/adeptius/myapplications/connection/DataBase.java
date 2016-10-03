@@ -49,7 +49,7 @@ public class DataBase implements Callable<ArrayList<Map<String, String>>>{
             String response = in.readLine();
             myLog("Получил ответ: " + response);
             ArrayList<Map<String, String>> resultMap = new ArrayList<>();
-            response = response.replace(" : ", ":");
+            response = response.replace(" : ", ":").replace("\\/","/");
             String[] splitResult = null;
             if (response.startsWith("[{")) {
                 splitResult = response.substring(2, response.length() - 2).split("\\},\\{");

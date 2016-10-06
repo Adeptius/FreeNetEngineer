@@ -103,6 +103,7 @@ public class ServiceTaskChecker extends Service {
         stackBuilder.addParentStack(MainActivity.class);
 
         Intent resultIntent = new Intent(context, MainActivity.class);
+
         stackBuilder.addNextIntent(resultIntent);
 
         PendingIntent resultPendingIntent;

@@ -448,5 +448,8 @@ public class MainActivity extends AppCompatActivity
             mainScrollView.removeAllViews();
             animateInTasks(currentViews);
         }
+        if (ServiceTaskChecker.newTasksIds.size() > 0){
+            refresh();
+        }
     }
 }

@@ -63,7 +63,6 @@ public class MainActivity extends AppCompatActivity
     public SwipeRefreshLayout refreshLayout;
     private ArrayList<View> currentViews;
 
-
     @Override
     public void onClick(View v) {
         Intent intent = new Intent(this, TaskActivity.class);
@@ -86,8 +85,6 @@ public class MainActivity extends AppCompatActivity
     public void onRefresh() {
         refresh();
     }
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -444,13 +441,15 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        if (currentViews != null) {
-            mainScrollView.removeAllViews();
-            animateInTasks(currentViews);
-        }
-        if (ServiceTaskChecker.newTasksIds.size() > 0){
-            refresh();
-        }
+        mainScrollView.removeAllViews();
+        animateInTasks(currentViews);
+//        if (currentViews != null) {
+//            mainScrollView.removeAllViews();
+//            animateInTasks(currentViews);
+//        }
+//        if (ServiceTaskChecker.newTasksIds.size() > 0){
+//            refresh();
+//        }
     }
 
     @Override

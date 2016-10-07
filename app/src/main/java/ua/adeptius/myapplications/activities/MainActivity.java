@@ -442,8 +442,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onPostResume() {
-        super.onPostResume();
+    protected void onResume() {
+        super.onResume();
         if (currentViews != null) {
             mainScrollView.removeAllViews();
             animateInTasks(currentViews);
@@ -451,5 +451,10 @@ public class MainActivity extends AppCompatActivity
         if (ServiceTaskChecker.newTasksIds.size() > 0){
             refresh();
         }
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
     }
 }

@@ -63,28 +63,7 @@ public class MainActivity extends AppCompatActivity
     public SwipeRefreshLayout refreshLayout;
     private ArrayList<View> currentViews;
 
-    @Override
-    public void onClick(View v) {
-        Intent intent = new Intent(this, TaskActivity.class);
-        String a = "" + v.getId();
-        intent.putExtra("position", a);
 
-        String idOfShoosenTask = tasks.get(v.getId()).getId();
-        if (ServiceTaskChecker.newTasksIds.contains(idOfShoosenTask)) {
-            ServiceTaskChecker.newTasksIds.remove(idOfShoosenTask);
-            v.setBackgroundColor(Visual.CORPORATE_COLOR);
-        }// если id заявки на которую мы клацнули есть в списке id новых заявок -
-        // то открывая - удаляем её из списка новых и делаем её цвет синим
-        if (!ServiceTaskChecker.wasTasksIds.contains(idOfShoosenTask))
-            ServiceTaskChecker.wasTasksIds.add(idOfShoosenTask);
-        ServiceTaskChecker.wasNewTaskCountInLastTime = ServiceTaskChecker.newTasksIds.size();
-        startActivity(intent);
-    }
-
-    @Override
-    public void onRefresh() {
-        refresh();
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,6 +81,8 @@ public class MainActivity extends AppCompatActivity
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.swiperefresh);
         refreshLayout.setOnRefreshListener(this);
         refreshLayout.setColorSchemeColors(Color.GREEN, Color.BLUE, Color.parseColor("#FF9900"));
+
+
 
         if (!isMyServiceRunning(ServiceTaskChecker.class))
             startService(new Intent(MainActivity.this, ServiceTaskChecker.class));
@@ -391,16 +372,38 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    public void onClick(View v) {
+        Intent intent = new Intent(this, TaskActivity.class);
+        String a = "" + v.getId();
+        intent.putExtra("position", a);
+
+        String idOfShoosenTask = tasks.get(v.getId()).getId();
+        if (ServiceTaskChecker.newTasksIds.contains(idOfShoosenTask)) {
+            ServiceTaskChecker.newTasksIds.remove(idOfShoosenTask);
+            v.setBackgroundColor(Visual.CORPORATE_COLOR);
+        }// если id заявки на которую мы клацнули есть в списке id новых заявок -
+        // то открывая - удаляем её из списка новых и делаем её цвет синим
+        if (!ServiceTaskChecker.wasTasksIds.contains(idOfShoosenTask))
+            ServiceTaskChecker.wasTasksIds.add(idOfShoosenTask);
+        ServiceTaskChecker.wasNewTaskCountInLastTime = ServiceTaskChecker.newTasksIds.size();
+        startActivity(intent);
+    }
+
+    @Override
+    public void onRefresh() {
+        refresh();
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        return super.onOptionsItemSelected(item);
-    }
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        return super.onOptionsItemSelected(item);
+//    }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override

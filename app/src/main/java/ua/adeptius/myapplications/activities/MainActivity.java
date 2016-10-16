@@ -217,7 +217,9 @@ public class MainActivity extends AppCompatActivity
                         });
                         if (!interruptViewUpdate && i % 2 != 0) {
                             try {
-                                Thread.sleep(80);
+                                int interval = 80;
+                                if(views.size()>20) interval = 40;
+                                Thread.sleep(interval);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }

@@ -17,7 +17,10 @@ public class Network {
             request[1] = "begun=" + login;
             request[2] = "drowssap=" + password;
             Map<String, String> map = EXECUTOR.submit(new DataBase(request)).get().get(0);
-            if (map.get("authentication").equals("success")) return true;
+            if (map.get("authentication").equals("success")){
+                myLog("Авторизация ок");
+                return true;
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {

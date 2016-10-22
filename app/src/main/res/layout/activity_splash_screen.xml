@@ -47,10 +47,20 @@
             style="?android:attr/progressBarStyleLarge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/progressBar4"
+            android:id="@+id/progressBarInSplashScreen"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             android:layout_gravity="center" />
+
+        <TextView
+            android:text="Авторизация..."
+            android:layout_width="259dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/status_text_view"
+            android:textSize="20sp"
+            android:layout_gravity="center_horizontal"
+            android:textColor="@android:color/white"
+            android:gravity="center_horizontal" />
 
 
     </LinearLayout>

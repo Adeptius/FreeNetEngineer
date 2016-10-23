@@ -55,6 +55,7 @@ public class Utilites {
         task.setSwitch_ip(temp.get("switch_ip"));
         task.setWho(temp.get("who"));
         task.setRterm(temp.get("rterm"));
+        task.setGarantServise(temp.get("gsrv"));
         return task;
     }
 

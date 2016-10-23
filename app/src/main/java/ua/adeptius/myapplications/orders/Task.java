@@ -34,6 +34,15 @@ public class Task {
     private String distrikt;
     private String switch_ip;
     private String who;
+    private String garantServise;
+
+    public String getGarantServise() {
+        return garantServise;
+    }
+
+    public void setGarantServise(String garantServise) {
+        this.garantServise = garantServise;
+    }
 
     public String getAddr() {
         return addr;

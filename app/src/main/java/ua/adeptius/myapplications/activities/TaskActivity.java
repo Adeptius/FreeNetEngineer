@@ -192,6 +192,10 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
             addAktMessage();
         }
 
+        if (task.getGarantServise().equals("1")) {
+            addGarantServiceMessage();
+        }
+
         //Добавляю комментарии
         String[] comments = task.getComments();
         for (int i = 0; i < comments.length; i++) {
@@ -282,6 +286,19 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
             }
 
         }
+    }
+
+    private void addGarantServiceMessage() {
+        TextView garantServiceView = new TextView(getApplicationContext());
+        garantServiceView.setPadding(10, 10, 0, 10);
+        garantServiceView.setGravity(Gravity.CENTER);
+        garantServiceView.setText("Гарантированный сервис");
+        garantServiceView.setTextColor(Color.WHITE);
+        garantServiceView.setBackgroundColor(Color.parseColor("#2e7d32"));
+        garantServiceView.setTextSize(17);
+        views.add(garantServiceView);
+        views.add(addHorizontalSeparator());
+
     }
 
     private void addAktMessage() {

@@ -3,44 +3,39 @@ package ua.adeptius.myapplications.activities;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
+import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AlertDialog;
-import android.util.Log;
-import android.view.Gravity;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.content.Intent;
-import android.graphics.Color;
+import android.view.View;
 import android.view.Window;
 import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
 import ua.adeptius.myapplications.R;
 import ua.adeptius.myapplications.connection.DataBase;
-import ua.adeptius.myapplications.connection.Network;
 import ua.adeptius.myapplications.orders.Task;
 import ua.adeptius.myapplications.service.ServiceTaskChecker;
 import ua.adeptius.myapplications.util.Settings;
@@ -52,8 +47,8 @@ import static ua.adeptius.myapplications.util.Utilites.HANDLER;
 import static ua.adeptius.myapplications.util.Utilites.myLog;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener, SwipeRefreshLayout.OnRefreshListener {
-
+        implements NavigationView.OnNavigationItemSelectedListener,
+        View.OnClickListener, SwipeRefreshLayout.OnRefreshListener {
 
     public static ArrayList<Task> tasks = null;
     public static LinearLayout mainScrollView;
@@ -62,8 +57,6 @@ public class MainActivity extends AppCompatActivity
     public static int needToShow;
     public SwipeRefreshLayout refreshLayout;
     private ArrayList<View> currentViews;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,7 +75,12 @@ public class MainActivity extends AppCompatActivity
         refreshLayout.setOnRefreshListener(this);
         refreshLayout.setColorSchemeColors(Color.GREEN, Color.BLUE, Color.parseColor("#FF9900"));
 
-        showMessageOfTheDay();
+        Calendar calendar = new GregorianCalendar();
+        int weeks = calendar.get(Calendar.WEEK_OF_MONTH);
+        if (weeks != Settings.getMessageOftheWeek()) {
+            showMessageOfTheDay();
+            Settings.setMessageOfTheWeek(weeks);
+        }
 
         if (!isMyServiceRunning(ServiceTaskChecker.class))
             startService(new Intent(MainActivity.this, ServiceTaskChecker.class));
@@ -109,9 +107,9 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void showMessageOfTheDay() {
-        EXECUTOR.submit(new Callable<String>() {
+        EXECUTOR.submit(new Runnable() {
             @Override
-            public String call() throws Exception {
+            public void run() {
                 try {
                     URL url = new URL("http://e404.ho.ua/FreeNetEngineer/MessageOfTheWeek.txt");
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -119,32 +117,33 @@ public class MainActivity extends AppCompatActivity
                     InputStream stream = connection.getInputStream();
                     BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
                     String s;
-                    final StringBuilder stringBuilder = new StringBuilder("Сообщение недели:\n");
+                    final StringBuilder stringBuilder = new StringBuilder();
                     while ((s = reader.readLine()) != null) {
+                        s = s.replace("\\n","\n");
                         stringBuilder.append(s);
                     }
 
-                    HANDLER.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                            builder.setMessage(stringBuilder.toString());
-                            builder.setCancelable(false);
-                            builder.setPositiveButton("Закрыть", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.dismiss();
-                                }
-                            });
-                            AlertDialog dialog = builder.create();
-                            dialog.show();
-                        }
-                    });
-
+                    if (!"".equals(stringBuilder.toString())) {
+                        HANDLER.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                                builder.setMessage(stringBuilder.toString());
+                                builder.setCancelable(false);
+                                builder.setPositiveButton("Закрыть", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
+                                    }
+                                });
+                                AlertDialog dialog = builder.create();
+                                dialog.show();
+                            }
+                        });
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                return null;
             }
         });
     }
@@ -197,7 +196,6 @@ public class MainActivity extends AppCompatActivity
             }
             animateInTasks(views);
             currentViews = views;
-
 
         } else { // Сообщение: нет заявок
             HANDLER.post(new Runnable() {

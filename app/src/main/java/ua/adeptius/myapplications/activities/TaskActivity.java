@@ -6,7 +6,6 @@ import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -17,7 +16,6 @@ import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
@@ -26,13 +24,9 @@ import android.widget.TextView;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 import ua.adeptius.myapplications.R;
 import ua.adeptius.myapplications.connection.DataBase;
@@ -43,10 +37,10 @@ import ua.adeptius.myapplications.util.Visual;
 
 import static ua.adeptius.myapplications.util.Utilites.EXECUTOR;
 import static ua.adeptius.myapplications.util.Utilites.HANDLER;
+import static ua.adeptius.myapplications.util.Utilites.myLog;
 import static ua.adeptius.myapplications.util.Visual.MATCH_WRAP;
 import static ua.adeptius.myapplications.util.Visual.WRAP_MACH;
 import static ua.adeptius.myapplications.util.Visual.WRAP_WRAP;
-import static ua.adeptius.myapplications.util.Utilites.myLog;
 import static ua.adeptius.myapplications.util.Visual.WRAP_WRAP_WEIGHT1;
 
 public class TaskActivity extends AppCompatActivity implements View.OnClickListener {

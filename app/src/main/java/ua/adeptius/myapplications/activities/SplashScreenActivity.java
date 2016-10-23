@@ -1,14 +1,12 @@
 package ua.adeptius.myapplications.activities;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
@@ -74,39 +72,35 @@ public class SplashScreenActivity extends AppCompatActivity {
             if (isWeHaveNewVersion()) {
                 myLog("Есть новая версия - перехожу на страницу логина");
                 changeStatus(-1, 0);
-                Thread.sleep(400);
+                Thread.sleep(1500);
                 Intent intent = new Intent(SplashScreenActivity.this, LoginActivity.class);
                 SplashScreenActivity.this.finish();
                 startActivity(intent);
             } else {
                 changeStatus(1, 0);
-            }
-
-            if (!Network.isAuthorizationOk(Settings.getCurrentLogin(), Settings.getCurrentPassword())) {
-                myLog("не авторизировано - перехожу на страницу логина");
-                changeStatus(1, -1);
-                Thread.sleep(400);
-                Intent intent = new Intent(SplashScreenActivity.this, LoginActivity.class);
-                SplashScreenActivity.this.finish();
-                startActivity(intent);
-            } else {
-                changeStatus(1, 1);
-            }
-
-            myLog("Авторизация ок и обновления нет");
-
-            HANDLER.post(new Runnable() {
-                @Override
-                public void run() {
-                    Animation animGone = AnimationUtils.loadAnimation(SplashScreenActivity.this,
-                            R.anim.splash_screen_animation_gone);
-                    imageView.startAnimation(animGone);
+                if (!Network.isAuthorizationOk(Settings.getCurrentLogin(), Settings.getCurrentPassword())) {
+                    myLog("не авторизировано - перехожу на страницу логина");
+                    changeStatus(1, -1);
+                    Thread.sleep(1500);
+                    Intent intent = new Intent(SplashScreenActivity.this, LoginActivity.class);
+                    SplashScreenActivity.this.finish();
+                    startActivity(intent);
+                } else {
+                    myLog("Авторизация ок и обновления нет");
+                    changeStatus(1, 1);
+                    HANDLER.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Animation animGone = AnimationUtils.loadAnimation(SplashScreenActivity.this,
+                                    R.anim.splash_screen_animation_gone);
+                            imageView.startAnimation(animGone);
+                        }
+                    });
+                    Thread.sleep(500);
+                    startActivity(new Intent(SplashScreenActivity.this, MainActivity.class));
+                    finish();
                 }
-            });
-            Thread.sleep(500);
-
-            startActivity(new Intent(SplashScreenActivity.this, MainActivity.class));
-            finish();
+            }
         }else {
             HANDLER.post(new Runnable() {
                 @Override
@@ -126,8 +120,8 @@ public class SplashScreenActivity extends AppCompatActivity {
 
     public void changeStatus(int versionStatus, int authorizationStatus) throws InterruptedException {
         final StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("Новая версия.. ");
-        if (versionStatus == -1) stringBuilder.append("Обновление");
+        stringBuilder.append("Обновления.. ");
+        if (versionStatus == -1) stringBuilder.append("Есть!");
         if (versionStatus == 0) stringBuilder.append("Проверка");
         if (versionStatus == 1) stringBuilder.append("ОК");
 
@@ -141,7 +135,7 @@ public class SplashScreenActivity extends AppCompatActivity {
                 statusTextView.setText(stringBuilder.toString());
             }
         });
-        Thread.sleep(500);
+        Thread.sleep(200);
     }
 
     private boolean isWeHaveNewVersion() {

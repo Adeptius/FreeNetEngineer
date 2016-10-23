@@ -16,6 +16,19 @@ public class Settings {
         }
     }
 
+    public static int getMessageOftheWeek() {
+        try{
+            return Integer.parseInt(sPref.getString("messageOfWeek", ""));
+        }catch (Exception e){
+            return -1;
+        }
+    }
+
+    public static void setMessageOfTheWeek(int messageOfTheWeek) {
+        settingsEditor.putString("messageOfWeek", "" + messageOfTheWeek);
+        settingsEditor.commit();
+    }
+
     //Login
     public static void setCurrentLogin(String currentLogin) {
         settingsEditor.putString("login", currentLogin);

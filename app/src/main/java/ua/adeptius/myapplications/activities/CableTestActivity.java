@@ -5,9 +5,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -320,7 +320,7 @@ public class CableTestActivity extends AppCompatActivity implements TextView.OnE
                 if (arr.get(0).substring(17, 23).equals("Данная"))
                     tvCableResult.setText("Эта модель коммутатора не поддерживается.");
                 if (arr.get(0).substring(17, 26).equals("Результат") && arr.size() == 3) {
-                    tvCableResult.setText("Ошибка на сервере. Сообщите о проблеме указав этот свич и порт.");
+                    tvCableResult.setText("Ошибка. Мозможно порт оптический.");
                 }
 
                 /**

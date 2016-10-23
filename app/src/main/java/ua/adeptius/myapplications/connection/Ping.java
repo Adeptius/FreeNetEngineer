@@ -67,31 +67,33 @@ public class Ping implements Runnable {
             TextView pingView = new TextView(context);
             if (pingResult.equals("stop")) proBar.setVisibility(View.INVISIBLE);
             else {
-                pingView.setText(pingResult);
-                pingView.setPadding(20, 0, 0, 0);
-                if (pingResult.equals("Ответа нет.")) {
-                    pingView.setBackgroundColor(Color.RED);
-                    lossed++;
+                if (!interrupt) {
+                    pingView.setText(pingResult);
+                    pingView.setPadding(20, 0, 0, 0);
+                    if (pingResult.equals("Ответа нет.")) {
+                        pingView.setBackgroundColor(Color.RED);
+                        lossed++;
+                    }
+                    else if (pingResult.equals("Сбой (Нет интернета на устройстве)"))
+                        pingView.setBackgroundColor(Color.CYAN);
+                    else pingView.setBackgroundColor(Color.GREEN);
+                    pingCounter++;
+
+                    Float loss = (lossed / pingCounter)*100;
+                    String cutted = loss.toString().substring(0,3);
+                    if (cutted.endsWith(".")) cutted = loss.toString().substring(0,2);
+                    statisticView.setText("Пинг " +  ip + "\n" + cutted + "% потерь");
+
+
+                    if (pingScrollView.getChildCount() > 15) {
+                        pingScrollView.getChildAt(15).startAnimation(
+                                AnimationUtils.loadAnimation(context, R.anim.mytransforpingdelete));
+                        pingScrollView.removeViewAt(15);
+                    }
+
+                    pingView.startAnimation(AnimationUtils.loadAnimation(context, R.anim.mytransforping));
+                    pingScrollView.addView(pingView, 1, Visual.MATCH_WRAP);
                 }
-                else if (pingResult.equals("Сбой (Нет интернета на устройстве)"))
-                    pingView.setBackgroundColor(Color.CYAN);
-                else pingView.setBackgroundColor(Color.GREEN);
-                pingCounter++;
-
-                Float loss = (lossed / pingCounter)*100;
-                String cutted = loss.toString().substring(0,3);
-                if (cutted.endsWith(".")) cutted = loss.toString().substring(0,2);
-                statisticView.setText("Пинг " +  ip + "\n" + cutted + "% потерь");
-
-
-                if (pingScrollView.getChildCount() > 15) {
-                    pingScrollView.getChildAt(15).startAnimation(AnimationUtils.loadAnimation(context, R.anim.mytransforpingdelete));
-                    pingScrollView.removeViewAt(15);
-
-                }
-
-                pingView.startAnimation(AnimationUtils.loadAnimation(context, R.anim.mytransforping));
-                pingScrollView.addView(pingView, 1, Visual.MATCH_WRAP);
             }
         }
     }

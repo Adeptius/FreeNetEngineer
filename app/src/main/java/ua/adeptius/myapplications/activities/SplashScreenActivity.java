@@ -68,7 +68,7 @@ public class SplashScreenActivity extends AppCompatActivity {
         changeStatus(0, 0);
         Thread.sleep(400);
 
-        if (isCurrentDeviceOnline()){
+        if (isCurrentDeviceOnline() && isProgramActive()){
             if (isWeHaveNewVersion()) {
                 myLog("Есть новая версия - перехожу на страницу логина");
                 changeStatus(-1, 0);
@@ -102,13 +102,23 @@ public class SplashScreenActivity extends AppCompatActivity {
                 }
             }
         }else {
-            HANDLER.post(new Runnable() {
-                @Override
-                public void run() {
-                    statusTextView.setText("Интернет отсутствует..");
-                    progressBar.setVisibility(View.INVISIBLE);
-                }
-            });
+            if (isInternetIsActive()){
+                HANDLER.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        statusTextView.setText("Программа отключена");
+                        progressBar.setVisibility(View.INVISIBLE);
+                    }
+                });
+            }else {
+                HANDLER.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        statusTextView.setText("Интернет отсутствует");
+                        progressBar.setVisibility(View.INVISIBLE);
+                    }
+                });
+            }
         }
     }
 
@@ -136,6 +146,42 @@ public class SplashScreenActivity extends AppCompatActivity {
             }
         });
         Thread.sleep(200);
+    }
+
+    private boolean isProgramActive(){
+        try {
+            Callable<Boolean> call = new Callable<Boolean>(){
+                @Override
+                public Boolean call() throws Exception {
+                    URL url = new URL("http://e404.ho.ua/on");
+                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    connection.connect();
+                    connection.getInputStream();
+                    return true;
+                }
+            };
+            return EXECUTOR.submit(call).get();
+        } catch (Exception e){
+            return false;
+        }
+    }
+
+    private boolean isInternetIsActive(){
+        try {
+            Callable<Boolean> call = new Callable<Boolean>(){
+                @Override
+                public Boolean call() throws Exception {
+                    URL url = new URL("http://e404.ho.ua/");
+                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    connection.connect();
+                    connection.getInputStream();
+                    return true;
+                }
+            };
+            return EXECUTOR.submit(call).get();
+        } catch (Exception e){
+            return false;
+        }
     }
 
     private boolean isWeHaveNewVersion() {

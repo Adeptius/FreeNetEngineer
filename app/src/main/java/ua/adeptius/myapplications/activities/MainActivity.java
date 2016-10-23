@@ -306,12 +306,6 @@ public class MainActivity extends AppCompatActivity
         return false;
     }
 
-
-
-
-
-
-
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -385,6 +379,11 @@ public class MainActivity extends AppCompatActivity
             stopService(new Intent(this, ServiceTaskChecker.class));
             Settings.eraseLoginAndPassword();
             MainActivity.this.finish();
+
+        }else if (id == R.id.nav_ping) {
+            Intent intent = new Intent(this, PingActivity.class);
+            intent.putExtra("ip", "");
+            startActivity(intent);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

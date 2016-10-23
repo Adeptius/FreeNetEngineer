@@ -11,8 +11,36 @@
     tools:context=".activities.PingActivity">
 
 
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:text="Узел"
+        android:ems="10"
+        android:id="@+id/ping_edit_text" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:text="Старт"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/ping_start_button"
+            android:layout_weight="1" />
+
+        <Button
+            android:text="Стоп"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/ping_stop_button"
+            android:layout_weight="1" />
+    </LinearLayout>
+
     <ProgressBar
-        android:id="@+id/progressBar2"
+        android:id="@+id/ping_progress_bar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal" />

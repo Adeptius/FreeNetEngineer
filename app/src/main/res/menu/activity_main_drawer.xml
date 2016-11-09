@@ -16,9 +16,14 @@
     <item android:title="Дополнительно">
         <menu>
             <item
-                android:id="@+id/nav_port"
-                android:icon="@drawable/port"
-                android:title="Проверка порта" />
+            android:id="@+id/nav_port"
+            android:icon="@drawable/port"
+            android:title="Проверка порта" />
+
+            <item
+                android:id="@+id/nav_gerkon"
+                android:icon="@drawable/gerkon2"
+                android:title="Геркон" />
 
             <item
                 android:id="@+id/nav_ping"

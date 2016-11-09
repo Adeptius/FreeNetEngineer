@@ -384,6 +384,9 @@ public class MainActivity extends AppCompatActivity
             Intent intent = new Intent(this, PingActivity.class);
             intent.putExtra("ip", "");
             startActivity(intent);
+        }else if (id == R.id.nav_gerkon) {
+            Intent intent = new Intent(this, GerkonActivity.class);
+            startActivity(intent);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

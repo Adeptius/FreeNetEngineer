@@ -1,139 +1,210 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/settings_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".activities.SettingsActivity"
-    android:orientation="vertical">
+    tools:context=".activities.SettingsActivity">
 
     <Switch
+        android:id="@+id/new_tasks_switch"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Проверять наличие новых заявок"
-        android:id="@+id/new_tasks_switch"
-        android:checked="true"
-        android:layout_marginTop="28dp"
+        android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true" />
+        android:layout_marginTop="28dp"
+        android:checked="true"
+        android:text="Проверять наличие новых заявок" />
 
     <LinearLayout
-        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="35dp"
-        android:layout_marginTop="10dp">
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal">
 
         <Switch
+            android:id="@+id/switchSound"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Звук"
-            android:id="@+id/switchSound"
-            android:layout_below="@+id/new_tasks_switch"
             android:layout_alignParentStart="true"
+            android:layout_below="@+id/new_tasks_switch"
             android:layout_toStartOf="@+id/switchVibro"
             android:layout_weight="1"
             android:checked="false"
-            android:gravity="center_vertical|center_horizontal" />
+            android:gravity="center_vertical|center_horizontal"
+            android:text="Звук" />
 
         <Switch
+            android:id="@+id/switchVibro"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Вибрация"
-            android:id="@+id/switchVibro"
-            android:layout_marginBottom="46dp"
             android:layout_above="@+id/checkBoxVoskressenye"
             android:layout_centerHorizontal="true"
+            android:layout_marginBottom="46dp"
             android:layout_weight="1"
             android:checked="false"
-            android:gravity="center_vertical|center_horizontal" />
+            android:gravity="center_vertical|center_horizontal"
+            android:text="Вибрация" />
     </LinearLayout>
 
     <TextView
+        android:id="@+id/seek_bar_text_view_from"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Часы оповещения с:"
-        android:id="@+id/seek_bar_text_view_from"
-        android:layout_marginTop="0dp"
-        android:layout_below="@+id/new_tasks_switch"
-        android:layout_alignParentStart="true"
         android:layout_alignEnd="@+id/seek_bar_from"
-        android:layout_gravity="center_vertical" />
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/new_tasks_switch"
+        android:layout_gravity="center_vertical"
+        android:layout_marginTop="0dp"
+        android:text="Часы оповещения с:"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <SeekBar
+        android:id="@+id/seek_bar_from"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/seek_bar_from"
-        android:layout_below="@+id/seek_bar_text_view_from"
-        android:layout_alignParentStart="true"
-        android:max="24"
-        android:indeterminate="false"
         android:layout_alignEnd="@+id/seek_bar_text_view_to"
-        android:progress="8"
-        android:layout_gravity="right" />
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/seek_bar_text_view_from"
+        android:layout_gravity="right"
+        android:indeterminate="false"
+        android:max="24"
+        android:progress="8" />
 
     <TextView
+        android:id="@+id/seek_bar_text_view_to"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="до:"
-        android:id="@+id/seek_bar_text_view_to"
-        android:layout_below="@+id/seek_bar_from"
         android:layout_alignEnd="@+id/seek_bar_to"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/seek_bar_from"
+        android:text="до:"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <SeekBar
+        android:id="@+id/seek_bar_to"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/seek_bar_to"
-        android:layout_below="@+id/seek_bar_text_view_to"
-        android:layout_alignParentStart="true"
         android:layout_alignEnd="@+id/new_tasks_switch"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/seek_bar_text_view_to"
         android:indeterminate="false"
         android:max="24"
         android:progress="18" />
 
     <LinearLayout
-        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp">
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal">
 
         <Switch
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Суббота"
             android:id="@+id/switchSubbota"
-            android:layout_weight="1"
-            android:gravity="center_vertical|center_horizontal"
-            android:checked="false" />
-
-        <Switch
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Воскресенье"
-            android:id="@+id/switchVoskresenye"
             android:layout_weight="1"
+            android:checked="false"
             android:gravity="center_vertical|center_horizontal"
-            android:checked="false" />
+            android:text="Суббота" />
+
+        <Switch
+            android:id="@+id/switchVoskresenye"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:checked="false"
+            android:gravity="center_vertical|center_horizontal"
+            android:text="Воскресенье" />
     </LinearLayout>
 
     <Switch
+        android:id="@+id/switchPortrait"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Только портретная ориентация"
-        android:id="@+id/switchPortrait"
-        android:checked="false" />
+        android:checked="false"
+        android:text="Только портретная ориентация" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="Телефон"
+        android:textAlignment="center" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/btnSearch"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:gravity="center"
+            android:text="Quick Search"
+            android:textColor="#fff"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+        <EditText
+            android:id="@+id/editText_phone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ems="10"
+            android:inputType="textPersonName"
+            android:text="Телефон" />
+
+        <Button
+            android:id="@+id/button_phone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="сохранить" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Пин"
+        android:textAlignment="center" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/editText_pin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ems="10"
+            android:inputType="textPersonName"
+            android:text="Пин" />
+
+        <Button
+            android:id="@+id/button_pin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="сохранить" />
+
+    </LinearLayout>
 
     <!--Button-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:text="New Button"-->
-        <!--android:id="@+id/button"-->
-        <!--android:layout_gravity="right" />-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:text="New Button"-->
+    <!--android:id="@+id/button"-->
+    <!--android:layout_gravity="right" />-->
 
 
 </LinearLayout>

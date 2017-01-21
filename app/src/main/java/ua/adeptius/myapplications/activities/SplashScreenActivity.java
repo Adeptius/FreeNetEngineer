@@ -36,7 +36,7 @@ import static ua.adeptius.myapplications.util.Utilites.myLog;
 public class SplashScreenActivity extends AppCompatActivity {
 
     private TextView statusTextView;
-    private ProgressBar  progressBar;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +68,7 @@ public class SplashScreenActivity extends AppCompatActivity {
         changeStatus(0, 0);
         Thread.sleep(400);
 
-        if (isCurrentDeviceOnline() && isProgramActive()){
+        if (isCurrentDeviceOnline()) {
             if (isWeHaveNewVersion()) {
                 myLog("Есть новая версия - перехожу на страницу логина");
                 changeStatus(-1, 0);
@@ -101,24 +101,15 @@ public class SplashScreenActivity extends AppCompatActivity {
                     finish();
                 }
             }
-        }else {
-            if (isInternetIsActive()){
-                HANDLER.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        statusTextView.setText("Программа отключена");
-                        progressBar.setVisibility(View.INVISIBLE);
-                    }
-                });
-            }else {
-                HANDLER.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        statusTextView.setText("Интернет отсутствует");
-                        progressBar.setVisibility(View.INVISIBLE);
-                    }
-                });
-            }
+        } else if (!isInternetIsActive()) {
+            HANDLER.post(new Runnable() {
+                @Override
+                public void run() {
+                    statusTextView.setText("Интернет отсутствует");
+                    progressBar.setVisibility(View.INVISIBLE);
+                }
+            });
+
         }
     }
 
@@ -148,27 +139,27 @@ public class SplashScreenActivity extends AppCompatActivity {
         Thread.sleep(200);
     }
 
-    private boolean isProgramActive(){
-        try {
-            Callable<Boolean> call = new Callable<Boolean>(){
-                @Override
-                public Boolean call() throws Exception {
-                    URL url = new URL("http://e404.ho.ua/on");
-                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                    connection.connect();
-                    connection.getInputStream();
-                    return true;
-                }
-            };
-            return EXECUTOR.submit(call).get();
-        } catch (Exception e){
-            return false;
-        }
-    }
+//    private boolean isProgramActive(){
+//        try {
+//            Callable<Boolean> call = new Callable<Boolean>(){
+//                @Override
+//                public Boolean call() throws Exception {
+//                    URL url = new URL("http://e404.ho.ua/on");
+//                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+//                    connection.connect();
+//                    connection.getInputStream();
+//                    return true;
+//                }
+//            };
+//            return EXECUTOR.submit(call).get();
+//        } catch (Exception e){
+//            return false;
+//        }
+//    }
 
-    private boolean isInternetIsActive(){
+    private boolean isInternetIsActive() {
         try {
-            Callable<Boolean> call = new Callable<Boolean>(){
+            Callable<Boolean> call = new Callable<Boolean>() {
                 @Override
                 public Boolean call() throws Exception {
                     URL url = new URL("http://e404.ho.ua/");
@@ -179,7 +170,7 @@ public class SplashScreenActivity extends AppCompatActivity {
                 }
             };
             return EXECUTOR.submit(call).get();
-        } catch (Exception e){
+        } catch (Exception e) {
             return false;
         }
     }

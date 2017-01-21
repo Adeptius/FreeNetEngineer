@@ -9,6 +9,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import ua.adeptius.myapplications.orders.Task;
+import ua.adeptius.myapplications.orders.TaskHistory;
 
 public class Utilites {
 
@@ -56,6 +57,14 @@ public class Utilites {
         task.setWho(temp.get("who"));
         task.setRterm(temp.get("rterm"));
         task.setGarantServise(temp.get("gsrv"));
+        return task;
+    }
+
+    public static TaskHistory createTaskHistory(Map<String, String> temp){
+        TaskHistory task = new TaskHistory();
+        task.setType_name(temp.get("type_name"));
+        task.setDatetime(temp.get("datetime"));
+        task.setComment(temp.get("comment"));
         return task;
     }
 

@@ -39,10 +39,11 @@ public class DataBase implements Callable<ArrayList<Map<String, String>>>{
                 if(i != 1) urlParameters += "&"; // добавлять "&" в начале не нужно
                 urlParameters+= params[i];
             }
-            myLog("Передаю параметры: " + urlParameters);
+
 
             con.setDoOutput(true);
             DataOutputStream wr = new DataOutputStream(con.getOutputStream());
+            myLog("Передаю параметры: " + urlParameters);
             wr.writeBytes(urlParameters);
             wr.flush(); wr.close();
             BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));

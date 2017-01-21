@@ -142,8 +142,31 @@ public class Settings {
     }
 
 
+    //Phone
+    public static void setPhone(String phone) {
+        settingsEditor.putString("phone", phone);
+        settingsEditor.commit();
+    }
+
+    public static String getPhone() {
+        return sPref.getString("phone", "");
+    }
+
+    //Pin
+    public static void setPin(String pin) {
+        settingsEditor.putString("pin", pin);
+        settingsEditor.commit();
+    }
+
+    public static String getPin() {
+        return sPref.getString("pin", "");
+    }
+
+
     public static void eraseLoginAndPassword() {
         setCurrentLogin("");
         setCurrentPassword("");
+        setPhone("");
+        setPin("");
     }
 }

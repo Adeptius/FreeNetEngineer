@@ -4,6 +4,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
@@ -15,15 +16,21 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -31,8 +38,10 @@ import java.util.concurrent.ExecutionException;
 import ua.adeptius.myapplications.R;
 import ua.adeptius.myapplications.connection.DataBase;
 import ua.adeptius.myapplications.orders.Task;
+import ua.adeptius.myapplications.orders.TaskHistory;
 import ua.adeptius.myapplications.service.ServiceTaskChecker;
 import ua.adeptius.myapplications.util.Settings;
+import ua.adeptius.myapplications.util.Utilites;
 import ua.adeptius.myapplications.util.Visual;
 
 import static ua.adeptius.myapplications.util.Utilites.EXECUTOR;
@@ -42,10 +51,11 @@ import static ua.adeptius.myapplications.util.Visual.MATCH_WRAP;
 import static ua.adeptius.myapplications.util.Visual.WRAP_MACH;
 import static ua.adeptius.myapplications.util.Visual.WRAP_WRAP;
 import static ua.adeptius.myapplications.util.Visual.WRAP_WRAP_WEIGHT1;
+import static ua.adeptius.myapplications.util.Visual.makeMyToast;
 
 public class TaskActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private Button commentButton, closeButton, takeButton, googleButton, cableButton, pingButton;
+    private Button commentButton, closeButton, takeButton, googleButton, cableButton, pingButton, historyButton;
     Task task;
     LinearLayout taskScrollView;
     static int slot;
@@ -114,7 +124,7 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
-    void deleteCurrentTask(){
+    void deleteCurrentTask() {
         MainActivity.mainScrollView.removeView(currentHeader);
     }
 
@@ -142,6 +152,7 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
         LinearLayout horizontalVievForTask = new LinearLayout(this);
         horizontalVievForTask.setOrientation(LinearLayout.HORIZONTAL);
         dogovor = new TextView(getApplicationContext());
+        dogovor.setTextIsSelectable(true);
         dogovor.setText("Договор: " + task.getCard() + "\nЛогин:     " + task.getLoglk() + "\nПароль: ******");
         dogovor.setBackgroundColor(Visual.CORPORATE_COLOR);
         dogovor.setTextColor(Color.WHITE);
@@ -204,7 +215,7 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
             commentView.setPadding(15, 5, 10, 10);
             commentView.setTextColor(Color.WHITE);
             commentView.setBackgroundColor(Color.parseColor("#1e88e5"));
-            if (i % 2 == 0) commentView.setBackgroundColor(Color.parseColor("#1976d2"));
+            if (i % 2 == 0) commentView.setBackgroundColor(Color.parseColor("#1565C0"));
             commentView.setLayoutParams(MATCH_WRAP);
             views.add(commentView);
         }
@@ -213,10 +224,17 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
         LinearLayout buttonsLayout2 = new LinearLayout(this);
         buttonsLayout2.setOrientation(LinearLayout.HORIZONTAL);
         googleButton = new Button(this);
-        googleButton.setText("Показать абонента на карте");
+        googleButton.setText("Карта");
         googleButton.setOnClickListener(this);
         buttonsLayout2.addView(googleButton, WRAP_MACH);
         ((LinearLayout.LayoutParams) googleButton.getLayoutParams()).weight = 1;
+        buttonsLayout2.setLayoutParams(MATCH_WRAP);
+
+        historyButton = new Button(this);
+        historyButton.setText("История");
+        historyButton.setOnClickListener(this);
+        buttonsLayout2.addView(historyButton, WRAP_MACH);
+        ((LinearLayout.LayoutParams) historyButton.getLayoutParams()).weight = 1;
         buttonsLayout2.setLayoutParams(MATCH_WRAP);
         views.add(buttonsLayout2);
 
@@ -224,14 +242,14 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
         //создаём лэйаут с кнопками Пинга и теста кабеля
         LinearLayout buttonsLayout3 = new LinearLayout(this);
         buttonsLayout3.setOrientation(LinearLayout.HORIZONTAL);
-        if (!task.getIp().equals("Неизвестно")){
+        if (!task.getIp().equals("Неизвестно")) {
             pingButton = new Button(this);
             pingButton.setText("Ping");
             pingButton.setOnClickListener(this);
             buttonsLayout3.addView(pingButton, WRAP_WRAP);
             ((LinearLayout.LayoutParams) pingButton.getLayoutParams()).weight = 1;
         }
-        if (!task.getSwitch_ip().equals("Неизвестно") || !task.getSwitch_port().equals("Неизвестно")){
+        if (!task.getSwitch_ip().equals("Неизвестно") || !task.getSwitch_port().equals("Неизвестно")) {
             cableButton = new Button(this);
             cableButton.setText("Порт");
             cableButton.setOnClickListener(this);
@@ -259,7 +277,7 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
         takeButton = new Button(this);
         takeButton.setText("Взять");
         takeButton.setOnClickListener(this);
-        if (taskIsYours){
+        if (taskIsYours) {
             buttonsLayout.addView(takeButton, WRAP_WRAP);
             ((LinearLayout.LayoutParams) takeButton.getLayoutParams()).weight = 1;
         }
@@ -269,14 +287,14 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
 
         for (View v : views) {
             final View view = v;
-                HANDLER.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        taskScrollView.addView(view);
-                        view.startAnimation(AnimationUtils.loadAnimation(TaskActivity.this, R.anim.task_screen_trans));
+            HANDLER.post(new Runnable() {
+                @Override
+                public void run() {
+                    taskScrollView.addView(view);
+                    view.startAnimation(AnimationUtils.loadAnimation(TaskActivity.this, R.anim.task_screen_trans));
 
-                    }
-                });
+                }
+            });
             if (v.getPaddingRight() != 8) {
                 try {
                     Thread.sleep(100);
@@ -318,7 +336,7 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
         TextView justHorizontalSpace = new TextView(this);
         justHorizontalSpace.setTextSize(2);
         justHorizontalSpace.setLayoutParams(MATCH_WRAP);
-        justHorizontalSpace.setPadding(0,0,8,0);
+        justHorizontalSpace.setPadding(0, 0, 8, 0);
         return justHorizontalSpace;
     }
 
@@ -356,8 +374,89 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
         if (v.equals(takeButton)) {
             showTakeDialog(vv);
         }
-        if (v.equals(dogovor)){
+        if (v.equals(dogovor)) {
             dogovor.setText("Договор: " + task.getCard() + "\nЛогин:     " + task.getLoglk() + "\nПароль:   " + task.getPasslk());
+        }
+        if (v.equals(historyButton)) {
+            showHistory();
+        }
+    }
+
+    private void showHistory() {
+        try {
+            String[] request = new String[4];
+            request[0] = "http://188.231.188.188/api/task_api_arhiv.php";
+            request[1] = "begun=" + Settings.getCurrentLogin();
+            request[2] = "drowssap=" + Settings.getCurrentPassword();
+            request[3] = "covenant=" + task.getCard();
+
+
+            ArrayList<Map<String, String>> arrayMap = EXECUTOR.submit(new DataBase(request)).get();
+            ArrayList<TaskHistory> tasks = new ArrayList<>();
+            for (int i = 0; i < arrayMap.size(); i++) {
+//                if (i!=0) {
+                    Map<String, String> temp = arrayMap.get(i);
+                    tasks.add(Utilites.createTaskHistory(temp));
+//                }
+            }
+            Collections.sort(tasks, new Comparator<TaskHistory>() {
+                @Override
+                public int compare(TaskHistory o1, TaskHistory o2) {
+                    return o2.getDatetime().compareTo(o1.getDatetime());
+                }
+            });
+
+            if (tasks.size()==1 || tasks.size()==0){  // если история пуста
+                Snackbar.make(taskScrollView, "Это единственная заявка", Snackbar.LENGTH_LONG).show();
+            }else {
+                tasks.remove(0);
+                LinkedList<View> items = new LinkedList<>();
+                for (TaskHistory task1 : tasks) {
+                    items.add(addHorizontalSeparator());
+                    TextView nameField = new TextView(getApplicationContext());
+                    nameField.setPadding(10, 10, 0, 10);
+                    nameField.setText(task1.getDatetime() + "\n" + task1.getType_name());
+                    nameField.setTextColor(Color.WHITE);
+                    nameField.setGravity(Gravity.CENTER);
+                    nameField.setBackgroundColor(Visual.CORPORATE_COLOR);
+                    nameField.setTextSize(17);
+                    items.add(nameField);
+
+                    String[] comments = task1.getComments();
+                    for (int i = 0; i < comments.length; i++) {
+                        TextView commentView = new TextView(this);
+                        commentView.setText(comments[i]);
+                        commentView.setPadding(15, 5, 10, 10);
+                        commentView.setTextColor(Color.WHITE);
+                        commentView.setBackgroundColor(Color.parseColor("#1e88e5"));
+                        if (i % 2 == 0) commentView.setBackgroundColor(Color.parseColor("#1565C0"));
+                        commentView.setLayoutParams(MATCH_WRAP);
+                        items.add(commentView);
+                    }
+                }
+                LinearLayout layout = new LinearLayout(this);
+                ScrollView scrollView = new ScrollView(this);
+                scrollView.addView(layout);
+                layout.setOrientation(LinearLayout.VERTICAL);
+                for (View item : items) {
+                    layout.addView(item);
+                }
+                android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+                builder.setCancelable(true);
+                TextView titleView = new TextView(this);
+                titleView.setText("История");
+                titleView.setGravity(Gravity.CENTER);
+                titleView.setTextSize(24);
+                titleView.setTypeface(null, Typeface.BOLD);
+                titleView.setTextColor(Color.parseColor("#1976D2"));
+                builder.setCustomTitle(titleView);
+                builder.setView(scrollView);
+                builder.setCustomTitle(titleView);
+                android.app.AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -436,7 +535,7 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
                 if (commentOK) {
                     Snackbar.make(vv, "Заявка закрыта", Snackbar.LENGTH_LONG).setAction("Action", null).show();
                     deleteCurrentTask();
-                }else
+                } else
                     Snackbar.make(vv, "Ошибка. Вероятно нет интернета", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
                 dialog.dismiss();
@@ -466,10 +565,10 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
             public void onClick(DialogInterface dialog, int which) {
                 String coment = commentView.getText().toString();
                 coment = coment.replace("!!!!!!", "!")
-                    .replace("!!!!!", "!")
-                    .replace("!!!!", "!")
-                    .replace("!!!", "!")
-                    .replace("!!", "!");
+                        .replace("!!!!!", "!")
+                        .replace("!!!!", "!")
+                        .replace("!!!", "!")
+                        .replace("!!", "!");
                 boolean commentOK = false;
                 myLog("ввели коментарий: " + coment + ". И нажали добавить");
                 try {
@@ -482,7 +581,7 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
                     request[5] = "task_id=" + task.getId();
 
                     Map<String, String> map = EXECUTOR.submit(new DataBase(request)).get().get(0);
-                    if (map.get("task").equals("comented"))  commentOK = true;
+                    if (map.get("task").equals("comented")) commentOK = true;
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -533,7 +632,7 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
                 if (commentOK == true) {
                     Snackbar.make(vv, "Заявка закрыта", Snackbar.LENGTH_LONG).setAction("Action", null).show();
                     deleteCurrentTask();
-                }else
+                } else
                     Snackbar.make(vv, "Ошибка. Вероятно нет интернета", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
                 dialog.dismiss();

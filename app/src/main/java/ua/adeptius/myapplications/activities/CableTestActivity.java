@@ -124,7 +124,7 @@ public class CableTestActivity extends AppCompatActivity implements TextView.OnE
         request[3] = "ip=172." + ip;
         request[4] = "port=" + port;
         new CableTest().execute(request);
-    }
+}
 
     void portInfo(String ip, String port) {
         String[] request = new String[5];

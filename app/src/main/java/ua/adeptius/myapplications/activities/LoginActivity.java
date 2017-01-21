@@ -41,7 +41,7 @@ import static ua.adeptius.myapplications.util.Utilites.myLog;
 
 public class LoginActivity extends AppCompatActivity {
 
-    public static final int CURRENT_VERSION = 21;
+    public static final int CURRENT_VERSION = 22;
     public static String login;
     public static String password;
 

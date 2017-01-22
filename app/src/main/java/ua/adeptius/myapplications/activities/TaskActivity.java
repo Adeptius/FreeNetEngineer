@@ -152,7 +152,6 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
         LinearLayout horizontalVievForTask = new LinearLayout(this);
         horizontalVievForTask.setOrientation(LinearLayout.HORIZONTAL);
         dogovor = new TextView(getApplicationContext());
-        dogovor.setTextIsSelectable(true);
         dogovor.setText("Договор: " + task.getCard() + "\nЛогин:     " + task.getLoglk() + "\nПароль: ******");
         dogovor.setBackgroundColor(Visual.CORPORATE_COLOR);
         dogovor.setTextColor(Color.WHITE);
@@ -160,6 +159,7 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
         dogovor.setPadding(20, 0, 0, 0);
         horizontalVievForTask.addView(dogovor, WRAP_MACH);
         dogovor.setOnClickListener(this);
+
 
         TextView justVerticalSpace = new TextView(getApplicationContext());
 
@@ -285,6 +285,7 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
         buttonsLayout.setLayoutParams(MATCH_WRAP);
         views.add(buttonsLayout);
 
+
         for (View v : views) {
             final View view = v;
             HANDLER.post(new Runnable() {
@@ -376,6 +377,7 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
         }
         if (v.equals(dogovor)) {
             dogovor.setText("Договор: " + task.getCard() + "\nЛогин:     " + task.getLoglk() + "\nПароль:   " + task.getPasslk());
+            dogovor.setTextIsSelectable(true);
         }
         if (v.equals(historyButton)) {
             showHistory();

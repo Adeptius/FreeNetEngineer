@@ -320,7 +320,32 @@ public class CableTestActivity extends AppCompatActivity implements TextView.OnE
                 if (arr.get(0).substring(17, 23).equals("Данная"))
                     tvCableResult.setText("Эта модель коммутатора не поддерживается.");
                 if (arr.get(0).substring(17, 26).equals("Результат") && arr.size() == 3) {
-                    tvCableResult.setText("Ошибка. Мозможно порт оптический.");
+                    tvCableResult.setText("Ошибка. Возможно порт оптический.");
+                }
+
+                /**
+                 * Если это RaiseCom
+                 */
+                if (arr.get(0).substring(17, 26).equals("Результат") && arr.size() == 9) {
+                    for (int i = 4; i < 6; i++) {
+                        myLog(arr.get(i));
+                        String para = i - 3 + " пара: ";
+                        String s = para + arr.get(i).substring(20) + " ";
+                        s = s + arr.get(i + 2).substring(17);
+                        s = s.replace("Состояние ", "");
+                        s = s.replace("Длинна ", "");
+                        myLog("строка:" + s);
+//                        if (!((s.length() == 29 || s.length() == 23) && s.substring(8, 18).equals("неизвестно"))) { // удаление гигабитных пар на 100мбит порту
+                            s = s.replace("open(2)", "Обрыв на");
+                            s = s.replace("short(3)", "Замыкание на");
+                            s = s.replace("impMismatch (4)", "Проблема с жилами на ");
+                            s = s.replace("ok(1)", "Кабель цел.");
+                            s = s.replace("Кабель цел. 0 м.", "Кабель цел.");
+                            s = s.replace("no-cable(7) неизвестно", "Нет кабеля.");
+                            sb.append(s).append("\n");
+//                        }
+                    }
+                    tvCableResult.setText(sb.toString());
                 }
 
                 /**

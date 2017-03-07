@@ -57,6 +57,7 @@ public class Utilites {
         task.setWho(temp.get("who"));
         task.setRterm(temp.get("rterm"));
         task.setGarantServise(temp.get("gsrv"));
+        task.setSw_place(temp.get("sw_place"));
         return task;
     }
 

@@ -1,12 +1,12 @@
 <resources>
-    <string name="app_name">FreeNet Engineer</string>
-    <string name="title_activity_login">FreeNet Engineer</string>
+    <string name="app_name">Бегун o3</string>
+    <string name="title_activity_login">Бегун o3</string>
 
 
     <string name="prompt_email">Логин</string>
     <string name="prompt_password">Пароль</string>
     <string name="action_sign_in">Войти</string>
-    <string name="title_activity_main">FreeNet engineer</string>
+    <string name="title_activity_main">Бегун o3</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -17,13 +17,8 @@
     <string name="large_text">
 
         \nДанное приложение - является собственностью компании O3 Freenet.
-        \nВсе права защищены.
         \n
-        \nВ последней версии:
-        \n-Добавлено отображение истории заявок
-        \n-Добавлена возможность открытия ящиков
-        \n
-        \nЕсли обнаружили проблему - сообщайте, поправим.
+        \nВ последней версии улучшено открытие ящиков
 
     </string>
     <string name="title_activity_settings">Настройки</string>

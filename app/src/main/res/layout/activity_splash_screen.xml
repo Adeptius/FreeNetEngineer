@@ -21,18 +21,18 @@
         android:layout_alignParentStart="true">
 
         <TextView
-            android:text="FreeNet Engineer"
+            android:id="@+id/textView3"
             android:layout_width="357dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
-            android:id="@+id/textView3"
-            android:textStyle="normal|bold"
             android:layout_alignParentTop="true"
-            android:gravity="center"
-            android:layout_weight="0.01"
             android:layout_gravity="center_horizontal"
+            android:layout_marginTop="40dp"
+            android:layout_weight="0.01"
+            android:gravity="center"
+            android:text="Бегун\nо3"
             android:textColor="@android:color/white"
-            android:textSize="60sp" />
+            android:textSize="60sp"
+            android:textStyle="normal|bold" />
 
         <ImageView
             android:layout_width="188dp"

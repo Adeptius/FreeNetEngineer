@@ -35,7 +35,7 @@ public class AboutActivity extends AppCompatActivity implements View.OnClickList
         Intent i = new Intent(Intent.ACTION_SEND);
         i.setType("plain/text");
         i.putExtra(Intent.EXTRA_EMAIL, new String[]{"adeptius@gmail.com"});
-        i.putExtra(Intent.EXTRA_SUBJECT, "FreeNet Engineer V" + LoginActivity.CURRENT_VERSION);
+        i.putExtra(Intent.EXTRA_SUBJECT, "FreeNet Engineer");
         try {
             startActivity(i);
         } catch (android.content.ActivityNotFoundException ex) {

@@ -40,7 +40,6 @@ public class DataBase implements Callable<ArrayList<Map<String, String>>>{
                 urlParameters+= params[i];
             }
 
-
             con.setDoOutput(true);
             DataOutputStream wr = new DataOutputStream(con.getOutputStream());
             myLog("Передаю параметры: " + urlParameters);

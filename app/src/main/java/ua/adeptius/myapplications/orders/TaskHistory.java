@@ -1,11 +1,27 @@
 package ua.adeptius.myapplications.orders;
 
 
+import org.json.JSONObject;
+
 public class TaskHistory {
 
     private String type_name;
     private String datetime;
     private String[] comment;
+
+    public TaskHistory(String json) {
+        try{
+            JSONObject allInfo = new JSONObject(json.trim());
+            setType_name(allInfo.getString("type_name"));
+            setDatetime(allInfo.getString("datetime"));
+            setComment(allInfo.getString("comment"));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public TaskHistory() {
+    }
 
     public String getDatetime() {
         return datetime;

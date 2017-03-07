@@ -189,6 +189,9 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
                 .append("Свич" + ": " + task.getSwitch_ip())
                 .append(" : " + task.getSwitch_port())
                 .append(" Геркон" + ": " + task.getGerkon());
+        if (!task.getSw_place().equals("null")){
+            sb.append("\n"+task.getSw_place());
+        }
         elseInfo.setText(sb.toString());
         elseInfo.setPadding(10, 10, 0, 10);
         elseInfo.setTextColor(Color.WHITE);
@@ -391,7 +394,6 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
             request[1] = "begun=" + Settings.getCurrentLogin();
             request[2] = "drowssap=" + Settings.getCurrentPassword();
             request[3] = "covenant=" + task.getCard();
-
 
             ArrayList<Map<String, String>> arrayMap = EXECUTOR.submit(new DataBase(request)).get();
             ArrayList<TaskHistory> tasks = new ArrayList<>();

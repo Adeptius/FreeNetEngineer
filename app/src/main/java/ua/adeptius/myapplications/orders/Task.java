@@ -35,6 +35,7 @@ public class Task {
     private String switch_ip;
     private String who;
     private String garantServise;
+    private String sw_place;
 
     public String getGarantServise() {
         return garantServise;
@@ -58,6 +59,14 @@ public class Task {
 
     public String[] getComments() {
         return comment;
+    }
+
+    public String getSw_place() {
+        return sw_place;
+    }
+
+    public void setSw_place(String sw_place) {
+        this.sw_place = sw_place;
     }
 
     public String getRterm() {

@@ -11,6 +11,7 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v4.widget.ViewDragHelper;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -27,6 +28,7 @@ import android.widget.TextView;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -101,6 +103,16 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        try { // увеличение поля захвата закрытой панели
+            Field mDragger = drawer.getClass().getDeclaredField("mLeftDragger");//mRightDragger for right obviously
+            mDragger.setAccessible(true);
+            ViewDragHelper draggerObj = (ViewDragHelper) mDragger.get(drawer);
+            Field mEdgeSize = draggerObj.getClass().getDeclaredField("mEdgeSize");
+            mEdgeSize.setAccessible(true);
+            int edge = mEdgeSize.getInt(draggerObj);
+            mEdgeSize.setInt(draggerObj, edge * 10); //optimal value as for me, you may set any constant in dp
+        }catch (Exception ignored){}
+
         needToShow = ONLY_MY_TASK;
 
         refresh();
@@ -170,7 +182,6 @@ public class MainActivity extends AppCompatActivity
                     public void run() {
                         refreshLayout.setRefreshing(false);
                         refreshMainScreen();
-
                     }
                 });
             }
@@ -244,7 +255,6 @@ public class MainActivity extends AppCompatActivity
                             }
                         }
                     }
-
                 }
             }
         });
@@ -344,12 +354,6 @@ public class MainActivity extends AppCompatActivity
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
-
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        return super.onOptionsItemSelected(item);
-//    }
-
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -399,13 +403,6 @@ public class MainActivity extends AppCompatActivity
         super.onResume();
         mainScrollView.removeAllViews();
         animateInTasks(currentViews);
-//        if (currentViews != null) {
-//            mainScrollView.removeAllViews();
-//            animateInTasks(currentViews);
-//        }
-//        if (ServiceTaskChecker.newTasksIds.size() > 0){
-//            refresh();
-//        }
     }
 
     @Override

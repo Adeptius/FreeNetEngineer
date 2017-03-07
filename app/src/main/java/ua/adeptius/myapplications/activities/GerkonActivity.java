@@ -1,9 +1,9 @@
 package ua.adeptius.myapplications.activities;
 
 import android.app.ProgressDialog;
-import android.content.Intent;
+import android.content.Context;
 import android.content.pm.ActivityInfo;
-import android.support.design.widget.Snackbar;
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
@@ -13,32 +13,32 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import ua.adeptius.myapplications.R;
-import ua.adeptius.myapplications.connection.DataBase;
+import ua.adeptius.myapplications.dao.GetInfo;
+import ua.adeptius.myapplications.model.GerkonStatus;
+import ua.adeptius.myapplications.model.OpeningBoxStatus;
 import ua.adeptius.myapplications.util.Settings;
-import ua.adeptius.myapplications.util.Utilites;
-import ua.adeptius.myapplications.util.Visual;
 
 import static ua.adeptius.myapplications.util.Utilites.EXECUTOR;
 import static ua.adeptius.myapplications.util.Utilites.HANDLER;
 
 public class GerkonActivity extends AppCompatActivity implements TextView.OnEditorActionListener {
 
-
     EditText editBoxNumber;
     Button buttonOpen, buttonClose;
     ProgressDialog progressDialog;
-    LinearLayout mainLayout;
+    LinearLayout mainLayout, mainInfoLayout;
     TextView textResult;
     LinearLayout buttonLayout;
+
+
+    TextView textIp, textPort, textAdminStatus, textCurrentIn, textLastDoind, textLastDate;
 
 
     @Override
@@ -47,10 +47,6 @@ public class GerkonActivity extends AppCompatActivity implements TextView.OnEdit
         setContentView(R.layout.activity_gerkon);
         if (Settings.isSwitchPortrait())
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-
-        Intent intent = getIntent();
-        String gerkon = intent.getStringExtra("gerkon");
-
         editBoxNumber = (EditText) findViewById(R.id.editText_box_number);
         editBoxNumber.setInputType(InputType.TYPE_CLASS_NUMBER);
         editBoxNumber.setOnEditorActionListener(this);
@@ -59,7 +55,16 @@ public class GerkonActivity extends AppCompatActivity implements TextView.OnEdit
         mainLayout = (LinearLayout) findViewById(R.id.activity_gerkon);
         textResult = (TextView) findViewById(R.id.text_result);
         buttonLayout = (LinearLayout) findViewById(R.id.button_layout);
-        buttonLayout.setVisibility(View.INVISIBLE);
+        textIp = (TextView) findViewById(R.id.ip);
+        textPort = (TextView) findViewById(R.id.port);
+        textAdminStatus = (TextView) findViewById(R.id.adminStatus);
+        textCurrentIn = (TextView) findViewById(R.id.currentIn);
+        textLastDoind = (TextView) findViewById(R.id.LastDoing);
+        textLastDate = (TextView) findViewById(R.id.lastDate);
+        mainInfoLayout = (LinearLayout) findViewById(R.id.mainInfoLayout);
+        mainInfoLayout.setVisibility(View.INVISIBLE);
+        buttonClose.setVisibility(View.INVISIBLE);
+        buttonOpen.setVisibility(View.INVISIBLE);
 
         editBoxNumber.addTextChangedListener(new TextWatcher() {
             @Override
@@ -69,8 +74,9 @@ public class GerkonActivity extends AppCompatActivity implements TextView.OnEdit
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                buttonClose.setVisibility(View.VISIBLE);
-                buttonOpen.setVisibility(View.VISIBLE);
+                buttonClose.setVisibility(View.INVISIBLE);
+                buttonOpen.setVisibility(View.INVISIBLE);
+                mainInfoLayout.setVisibility(View.INVISIBLE);
             }
 
             @Override
@@ -95,32 +101,42 @@ public class GerkonActivity extends AppCompatActivity implements TextView.OnEdit
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
     }
 
-    private void checkBox(final int box) {
+    @Override
+    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+        if (actionId == EditorInfo.IME_ACTION_DONE) {
+            checkBox(editBoxNumber.getText().toString());
+            final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(editBoxNumber.getWindowToken(), 0);
+        }
+        return true;
+    }
+
+
+    private void checkBox(final String box) {
         progressDialogShow();
-
-        String[] request = new String[6];
-        request[0] = "http://188.231.188.188/api/gerkon_api.php";
-        request[1] = "begun=" + Settings.getCurrentLogin();
-        request[2] = "drowssap=" + Settings.getCurrentPassword();
-        request[3] = "tel=" + Settings.getPhone();
-        request[4] = "pin=" + Settings.getPin();
-        request[5] = "box=" + box;
-
-        final DataBase dataBase = new DataBase(request);
-
         EXECUTOR.submit(new Runnable() {
             @Override
             public void run() {
                 try{
-                    Map<String, String> map = dataBase.call().get(0);
-                    int code = Integer.parseInt(map.get("resbox"));
-                    if (code==1){
-                        setButtonsVisible(true);
+                    boolean gerkonExist = GetInfo.isGerkonExist(box);
+                    GerkonStatus status = GetInfo.getGerkonStatus(box);
+                    setButtonEnabled(status.getStatusСode());
+
+                    if (gerkonExist){
+                        HANDLER.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                mainInfoLayout.setVisibility(View.VISIBLE);
+                            }
+                        });
+                        updateGerkonStatus(status);
+//                        setButtonsVisible(true);
                         setTextResult("");
                     }else {
-                        setButtonsVisible(false);
+//                        setButtonsVisible(false);
                         setTextResult("Нет такого ящика");
                     }
+
                 }catch (Exception e){
                     e.printStackTrace();
                     setButtonsVisible(false);
@@ -132,44 +148,65 @@ public class GerkonActivity extends AppCompatActivity implements TextView.OnEdit
         });
     }
 
+    private void updateGerkonStatus(final GerkonStatus status){
+        HANDLER.post(new Runnable() {
+            @Override
+            public void run() {
+                textIp.setText(status.getIp());
+                textPort.setText(status.getPort());
+                if (status.isAdmin_up()){
+                    textAdminStatus.setText("UP");
+                    textAdminStatus.setTextColor(Color.GREEN);
+                }else {
+                    textAdminStatus.setText("DOWN");
+                    textAdminStatus.setTextColor(Color.RED);
+                }
+
+                if (status.is_monitor()){
+                    textCurrentIn.setText("На Мониторинге");
+                    textCurrentIn.setTextColor(Color.GREEN);
+                }else {
+                    textCurrentIn.setText("Снят с мониторинга");
+                    textCurrentIn.setTextColor(Color.RED);
+                }
+                textLastDoind.setText(status.getStatus());
+                textLastDate.setText(status.getDate());
+            }
+        });
+    }
+
     private void setButtonsVisible(final boolean visible){
         HANDLER.post(new Runnable() {
             @Override
             public void run() {
                 if (visible){
-                    buttonLayout.setVisibility(View.VISIBLE);
+                    buttonClose.setVisibility(View.INVISIBLE);
+                    buttonOpen.setVisibility(View.VISIBLE);
                 }else {
-                    buttonLayout.setVisibility(View.INVISIBLE);
-
+                    buttonClose.setVisibility(View.VISIBLE);
+                    buttonOpen.setVisibility(View.INVISIBLE);
                 }
             }
         });
     }
 
-    private void openBox(boolean needToOpen){
+    private void openBox(final boolean needToOpen){
         progressDialogShow();
-        String box = editBoxNumber.getText().toString();
-        String[] request = new String[7];
-        request[0] = "http://188.231.188.188/api/gerkon_api.php";
-        request[1] = "begun=" + Settings.getCurrentLogin();
-        request[2] = "drowssap=" + Settings.getCurrentPassword();
-        request[3] = "tel=" + Settings.getPhone();
-        request[4] = "pin=" + Settings.getPin();
-        request[5] = "box=" + box;
-        request[6] = "action=" + (needToOpen ? "1" : "2");
-
-
-        final DataBase dataBase = new DataBase(request);
-
+        final String box = editBoxNumber.getText().toString();
         EXECUTOR.submit(new Runnable() {
             @Override
             public void run() {
                 try{
-                    Map<String, String> map = dataBase.call().get(0);
-                    String result = map.get("respact");
-                    int code = Integer.parseInt(map.get("respcode"));
-                    setButtonEnabled(code);
-                    setTextResult(result);
+                    OpeningBoxStatus openingBoxStatus;
+                    if (needToOpen){
+                        openingBoxStatus = GetInfo.openBox(box);
+                    }else {
+                        openingBoxStatus = GetInfo.closeBox(box);
+                    }
+                    GerkonStatus status = GetInfo.getGerkonStatus(box);
+                    updateGerkonStatus(status);
+                    setButtonEnabled(openingBoxStatus.getAnswerCode());
+//                    setTextResult(openingBoxStatus.getAnswer());
                 }catch (Exception e){
                     e.printStackTrace();
                     setTextResult("Ошибка. Возможно нет интернета.");
@@ -224,13 +261,5 @@ public class GerkonActivity extends AppCompatActivity implements TextView.OnEdit
                 textResult.setText(message);
             }
         });
-    }
-
-    @Override
-    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-        if (actionId == EditorInfo.IME_ACTION_DONE) {
-            checkBox(Integer.parseInt(editBoxNumber.getText().toString()));
-        }
-        return true;
     }
 }

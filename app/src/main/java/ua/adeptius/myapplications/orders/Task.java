@@ -353,15 +353,13 @@ public class Task {
         String city = getCity();
         String address = getAddr();
         if (address.contains("кв")) {
-            address.substring(0, getAddr().lastIndexOf("кв") - 1);
-        }else {
-
+            address = address.substring(0, getAddr().lastIndexOf("кв") - 1);
         }
-        address = address.replaceAll("частныйдом","")
-                .replaceAll("частный дом","");
+
+        address = address.replaceAll("частныйдом","").replaceAll("частный дом","");
 
         String result = city + " " + address;
-//        System.out.println(result);
+        System.out.println(result);
         return result;
     }
 }

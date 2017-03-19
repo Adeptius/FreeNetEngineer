@@ -37,6 +37,7 @@ import java.util.concurrent.ExecutionException;
 
 import ua.adeptius.myapplications.R;
 import ua.adeptius.myapplications.connection.DataBase;
+import ua.adeptius.myapplications.dao.GetInfo;
 import ua.adeptius.myapplications.orders.Task;
 import ua.adeptius.myapplications.orders.TaskHistory;
 import ua.adeptius.myapplications.service.ServiceTaskChecker;
@@ -78,8 +79,18 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
 
         taskScrollView = (LinearLayout) findViewById(R.id.task_scroll_view);
         Intent intent = getIntent();
-        slot = Integer.parseInt(intent.getStringExtra("position"));
-        task = MainActivity.tasks.get(slot);
+
+        String taskNumber = intent.getStringExtra("position");
+
+        if (taskNumber != null){
+            slot = Integer.parseInt(taskNumber);
+            task = MainActivity.tasks.get(slot);
+        }else {
+            String taskId = intent.getStringExtra("id");
+            task = findTaskById(taskId);
+        }
+
+
         taskIsYours = !Settings.getCurrentLogin().equals(task.getWho());
 
         final String phoneForHeader = task.getPhones()[0].substring(0, 3) + " "
@@ -122,6 +133,17 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
                 drawAll();
             }
         });
+    }
+
+    private Task findTaskById(String taskId) {
+        MainActivity.tasks.get(slot);
+
+        for (Task tas : MainActivity.tasks) {
+            if (tas.getId().equals(taskId)){
+                return tas;
+            }
+        }
+        return null;
     }
 
     void deleteCurrentTask() {
@@ -189,9 +211,13 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
                 .append("Свич" + ": " + task.getSwitch_ip())
                 .append(" : " + task.getSwitch_port())
                 .append(" Геркон" + ": " + task.getGerkon());
-        if (!task.getSw_place().equals("null")){
-            sb.append("\n"+task.getSw_place());
+        if (task.getSw_place() != null) {
+            if (!"null".equals(task.getSw_place())) {
+                sb.append("\n" + task.getSw_place()
+                        .replaceAll("свич стоит в", "Расположение свича: "));
+            }
         }
+
         elseInfo.setText(sb.toString());
         elseInfo.setPadding(10, 10, 0, 10);
         elseInfo.setTextColor(Color.WHITE);
@@ -306,7 +332,6 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
                     e.printStackTrace();
                 }
             }
-
         }
     }
 
@@ -349,8 +374,7 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
         if (v.equals(googleButton)) {
             Intent intent = new Intent();
             intent.setAction(Intent.ACTION_VIEW);
-            intent.setData(Uri.parse("geo:0,0?q=" + task.getCity() + " "
-                    + task.getAddr().substring(0, task.getAddr().lastIndexOf("кв") - 1)));
+            intent.setData(Uri.parse("geo:0,0?q=" + task.getAddressForMap()));
             startActivity(intent);
         }
         if (v.equals(pingButton)) {
@@ -388,80 +412,82 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void showHistory() {
-        try {
-            String[] request = new String[4];
-            request[0] = "http://188.231.188.188/api/task_api_arhiv.php";
-            request[1] = "begun=" + Settings.getCurrentLogin();
-            request[2] = "drowssap=" + Settings.getCurrentPassword();
-            request[3] = "covenant=" + task.getCard();
+        EXECUTOR.submit(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    final ArrayList<TaskHistory> tasks = GetInfo.getHistory(task.getCard());
+                    Collections.sort(tasks, new Comparator<TaskHistory>() {
+                        @Override
+                        public int compare(TaskHistory o1, TaskHistory o2) {
+                            return o2.getDatetime().compareTo(o1.getDatetime());
+                        }
+                    });
+                    HANDLER.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (tasks.size() == 1 || tasks.size() == 0) {  // если история пуста
+                                Snackbar.make(taskScrollView, "Это единственная заявка", Snackbar.LENGTH_LONG).show();
+                            } else {
+                                tasks.remove(0);
+                                LinkedList<View> items = new LinkedList<>();
+                                for (TaskHistory task1 : tasks) {
+                                    items.add(addHorizontalSeparator());
+                                    TextView nameField = new TextView(getApplicationContext());
+                                    nameField.setPadding(10, 10, 0, 10);
+                                    nameField.setText(task1.getDatetime() + "\n" + task1.getType_name());
+                                    nameField.setTextColor(Color.WHITE);
+                                    nameField.setGravity(Gravity.CENTER);
+                                    nameField.setBackgroundColor(Visual.CORPORATE_COLOR);
+                                    nameField.setTextSize(17);
+                                    items.add(nameField);
 
-            ArrayList<Map<String, String>> arrayMap = EXECUTOR.submit(new DataBase(request)).get();
-            ArrayList<TaskHistory> tasks = new ArrayList<>();
-            for (int i = 0; i < arrayMap.size(); i++) {
-//                if (i!=0) {
-                    Map<String, String> temp = arrayMap.get(i);
-                    tasks.add(Utilites.createTaskHistory(temp));
-//                }
+                                    String[] comments = task1.getComments();
+                                    for (int i = 0; i < comments.length; i++) {
+                                        TextView commentView = new TextView(TaskActivity.this);
+                                        commentView.setText(comments[i]);
+                                        commentView.setPadding(15, 5, 10, 10);
+                                        commentView.setTextColor(Color.WHITE);
+                                        commentView.setBackgroundColor(Color.parseColor("#1e88e5"));
+                                        if (i % 2 == 0)
+                                            commentView.setBackgroundColor(Color.parseColor("#1565C0"));
+                                        commentView.setLayoutParams(MATCH_WRAP);
+                                        items.add(commentView);
+                                    }
+                                }
+                                LinearLayout layout = new LinearLayout(TaskActivity.this);
+                                ScrollView scrollView = new ScrollView(TaskActivity.this);
+                                scrollView.addView(layout);
+                                layout.setOrientation(LinearLayout.VERTICAL);
+                                for (View item : items) {
+                                    layout.addView(item);
+                                }
+                                android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(TaskActivity.this);
+                                builder.setCancelable(true);
+                                TextView titleView = new TextView(TaskActivity.this);
+                                titleView.setText("История");
+                                titleView.setGravity(Gravity.CENTER);
+                                titleView.setTextSize(24);
+                                titleView.setTypeface(null, Typeface.BOLD);
+                                titleView.setTextColor(Color.parseColor("#1976D2"));
+                                builder.setCustomTitle(titleView);
+                                builder.setView(scrollView);
+                                builder.setCustomTitle(titleView);
+                                android.app.AlertDialog dialog = builder.create();
+                                dialog.show();
+                            }
+                        }
+                    });
+                } catch (Exception e) {
+                    HANDLER.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Snackbar.make(taskScrollView, "Ошибка..", Snackbar.LENGTH_LONG).show();
+                        }
+                    });
+                }
             }
-            Collections.sort(tasks, new Comparator<TaskHistory>() {
-                @Override
-                public int compare(TaskHistory o1, TaskHistory o2) {
-                    return o2.getDatetime().compareTo(o1.getDatetime());
-                }
-            });
-
-            if (tasks.size()==1 || tasks.size()==0){  // если история пуста
-                Snackbar.make(taskScrollView, "Это единственная заявка", Snackbar.LENGTH_LONG).show();
-            }else {
-                tasks.remove(0);
-                LinkedList<View> items = new LinkedList<>();
-                for (TaskHistory task1 : tasks) {
-                    items.add(addHorizontalSeparator());
-                    TextView nameField = new TextView(getApplicationContext());
-                    nameField.setPadding(10, 10, 0, 10);
-                    nameField.setText(task1.getDatetime() + "\n" + task1.getType_name());
-                    nameField.setTextColor(Color.WHITE);
-                    nameField.setGravity(Gravity.CENTER);
-                    nameField.setBackgroundColor(Visual.CORPORATE_COLOR);
-                    nameField.setTextSize(17);
-                    items.add(nameField);
-
-                    String[] comments = task1.getComments();
-                    for (int i = 0; i < comments.length; i++) {
-                        TextView commentView = new TextView(this);
-                        commentView.setText(comments[i]);
-                        commentView.setPadding(15, 5, 10, 10);
-                        commentView.setTextColor(Color.WHITE);
-                        commentView.setBackgroundColor(Color.parseColor("#1e88e5"));
-                        if (i % 2 == 0) commentView.setBackgroundColor(Color.parseColor("#1565C0"));
-                        commentView.setLayoutParams(MATCH_WRAP);
-                        items.add(commentView);
-                    }
-                }
-                LinearLayout layout = new LinearLayout(this);
-                ScrollView scrollView = new ScrollView(this);
-                scrollView.addView(layout);
-                layout.setOrientation(LinearLayout.VERTICAL);
-                for (View item : items) {
-                    layout.addView(item);
-                }
-                android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
-                builder.setCancelable(true);
-                TextView titleView = new TextView(this);
-                titleView.setText("История");
-                titleView.setGravity(Gravity.CENTER);
-                titleView.setTextSize(24);
-                titleView.setTypeface(null, Typeface.BOLD);
-                titleView.setTextColor(Color.parseColor("#1976D2"));
-                builder.setCustomTitle(titleView);
-                builder.setView(scrollView);
-                builder.setCustomTitle(titleView);
-                android.app.AlertDialog dialog = builder.create();
-                dialog.show();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        });
     }
 
     private void showTakeDialog(final View vv) {

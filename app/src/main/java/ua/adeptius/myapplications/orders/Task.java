@@ -1,5 +1,7 @@
 package ua.adeptius.myapplications.orders;
 
+import com.google.android.gms.maps.model.Marker;
+
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -36,6 +38,16 @@ public class Task {
     private String who;
     private String garantServise;
     private String sw_place;
+
+    private Marker marker;
+
+    public Marker getMarker() {
+        return marker;
+    }
+
+    public void setMarker(Marker marker) {
+        this.marker = marker;
+    }
 
     public String getGarantServise() {
         return garantServise;
@@ -335,5 +347,21 @@ public class Task {
 
     public void setWho(String who) {
         this.who = who;
+    }
+
+    public String getAddressForMap() {
+        String city = getCity();
+        String address = getAddr();
+        if (address.contains("кв")) {
+            address.substring(0, getAddr().lastIndexOf("кв") - 1);
+        }else {
+
+        }
+        address = address.replaceAll("частныйдом","")
+                .replaceAll("частный дом","");
+
+        String result = city + " " + address;
+//        System.out.println(result);
+        return result;
     }
 }

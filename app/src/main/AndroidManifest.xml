@@ -13,6 +13,11 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_maps_key" />
+
         <activity
             android:name=".activities.MainActivity"
             android:label="@string/title_activity_main"
@@ -31,6 +36,9 @@
         <activity
             android:name=".activities.PingActivity"
             android:label="Ping" />
+        <activity
+            android:name=".activities.MapsActivity"
+            android:label="Карта заявок" />
         <activity android:name=".activities.CableTestActivity" />
 
         <service android:name=".service.ServiceTaskChecker" />

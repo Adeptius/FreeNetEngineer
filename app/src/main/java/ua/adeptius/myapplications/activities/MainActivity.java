@@ -7,7 +7,10 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
+import android.support.v4.util.Pair;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -24,6 +27,9 @@ import android.view.Window;
 import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -78,10 +84,10 @@ public class MainActivity extends AppCompatActivity
         refreshLayout.setColorSchemeColors(Color.GREEN, Color.BLUE, Color.parseColor("#FF9900"));
 
         Calendar calendar = new GregorianCalendar();
-        int weeks = calendar.get(Calendar.WEEK_OF_MONTH);
-        if (weeks != Settings.getMessageOftheWeek()) {
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        if (day != Settings.getMessageOftheWeek()) {
             showMessageOfTheDay();
-            Settings.setMessageOfTheWeek(weeks);
+            Settings.setMessageOfTheWeek(day);
         }
 
         if (!isMyServiceRunning(ServiceTaskChecker.class))
@@ -113,10 +119,20 @@ public class MainActivity extends AppCompatActivity
             mEdgeSize.setInt(draggerObj, edge * 10); //optimal value as for me, you may set any constant in dp
         }catch (Exception ignored){}
 
-        needToShow = ONLY_MY_TASK;
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+               MapsActivity.tasks = tasks;
+                Intent intent = new Intent(MainActivity.this, MapsActivity.class);
+                startActivity(intent);
+            }
+        });
 
+        needToShow = ONLY_MY_TASK;
         refresh();
     }
+
 
     private void showMessageOfTheDay() {
         EXECUTOR.submit(new Runnable() {
@@ -233,6 +249,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void run() {
                 for (int i = 0; i < views.size(); i++) {
+
                     final View v = views.get(i);
                     if (!interruptViewUpdate) {
 
@@ -240,8 +257,13 @@ public class MainActivity extends AppCompatActivity
                             @Override
                             public void run() {
                                 if (!interruptViewUpdate) {
-                                    mainScrollView.addView(v);
-                                    v.startAnimation(AnimationUtils.loadAnimation(MainActivity.this, R.anim.main_screen_trans));
+                                    try{
+                                        mainScrollView.addView(v);
+                                        v.startAnimation(AnimationUtils.loadAnimation(MainActivity.this, R.anim.main_screen_trans));
+                                    }catch (IllegalStateException e){
+                                        e.printStackTrace();
+                                        interruptViewUpdate = true;
+                                    }
                                 }
                             }
                         });

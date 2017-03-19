@@ -29,7 +29,6 @@ public class Utilites {
         return null;
     }
 
-
     public static Task createTask(Map<String, String> temp){
         Task task = new Task();
         task.setType_name(temp.get("type_name"));
@@ -61,13 +60,13 @@ public class Utilites {
         return task;
     }
 
-    public static TaskHistory createTaskHistory(Map<String, String> temp){
-        TaskHistory task = new TaskHistory();
-        task.setType_name(temp.get("type_name"));
-        task.setDatetime(temp.get("datetime"));
-        task.setComment(temp.get("comment"));
-        return task;
-    }
+//    public static TaskHistory createTaskHistory(Map<String, String> temp){
+//        TaskHistory task = new TaskHistory();
+//        task.setType_name(temp.get("type_name"));
+//        task.setDatetime(temp.get("datetime"));
+//        task.setComment(temp.get("comment"));
+//        return task;
+//    }
 
     public static void myLog(String message){
         Log.d("====FreeNetEngineer====", message);

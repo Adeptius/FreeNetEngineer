@@ -141,6 +141,36 @@ public class Visual {
         return 0;
     }
 
+    public static int getIconForMap(String s){
+        if (s.equals("СТК")) return R.drawable.map_stk2;
+        if (s.equals("Нет линка по оптике")) return R.drawable.map_stk2;
+        if (s.equals("Нет пинга шлюза")) return R.drawable.map_noping;
+        if (s.equals("Потери пакетов")) return R.drawable.map_loss;
+        if (s.equals("Счастливец")) return R.drawable.map_scastlivect;
+        if (s.equals("Недоабонент")) return R.drawable.map_half;
+        if (s.equals("Перепротяжка")) return R.drawable.map_pereprotyagka;
+        if (s.equals("IPTV")) return R.drawable.map_iptv;
+        if (s.equals("Другое")) return R.drawable.map_some_else;
+        if (s.equals("Лояльность сервиса")) return R.drawable.map_loyal;
+        if (s.equals("Платная")) return R.drawable.map_platnaya;
+        if (s.equals("По скорости")) return R.drawable.map_speed;
+        if (s.equals("Роутер (аренда)")) return R.drawable.map_router;
+        if (s.equals("Роутер (покупка)")) return R.drawable.map_router;
+        if (s.equals("Роутер (настройка)")) return R.drawable.map_router;
+        if (s.equals("Видеонаблюдение")) return R.drawable.map_camera;
+        if (s.equals("Разделение колец")) return R.drawable.map_rings;
+        if (s.equals("Divan TV Продажа")) return R.drawable.map_olltv;
+        if (s.equals("Divan TV Обслуживание")) return R.drawable.map_olltv;
+        if (s.equals("Oll-TV Продажа")) return R.drawable.map_olltv;
+        if (s.equals("Oll-TV Обслуживание")) return R.drawable.map_olltv;
+        if (s.equals("Проверка возможности подключения")) return R.drawable.map_pvp;
+        if (s.equals("Падение коммутатора")) return R.drawable.map_shutdown;
+        if (s.equals("Техническое обслуживание/ВОЛС")) return R.drawable.map_pvp;
+        if (s.equals("Удержание")) return R.drawable.map_uderzhanie;
+        if (s.equals("Срочный вызов")) return R.drawable.map_emergency2;
+        return 0;
+    }
+
     public  static void makeMyToast(String s, Context context, LayoutInflater inflate, View view){
         LayoutInflater inflater = inflate;
         View layout = inflater.inflate(R.layout.custom_toast, (ViewGroup) view);

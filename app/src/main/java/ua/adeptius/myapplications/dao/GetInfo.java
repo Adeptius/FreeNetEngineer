@@ -34,6 +34,7 @@ public class GetInfo {
         map.put("covenant", card);
         String s = Web.sendPost("http://188.231.188.188/api/task_api_arhiv.php", map);
         if (s.equals("[]")) return new ArrayList<>();
+        s = s.substring(1, s.length()-1);
         String[] splitted = splitJson(s);
         ArrayList<TaskHistory> historyArrayList = new ArrayList<>();
         for (String s1 : splitted) {

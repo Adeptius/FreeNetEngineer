@@ -9,9 +9,6 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.Transformation;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -65,6 +62,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         adress = adress.replaceAll(" ", "+");
         String json = getJsonFromUrl("https://geocode-maps.yandex.ru/1.x/?geocode=" + adress
                 + "&format=json");
+        System.out.println(json);
         json = json.substring(json.indexOf("\"Point\""));
         json = json.substring(json.indexOf("{"));
         json = json.substring(0, json.indexOf("}") + 1);
@@ -79,8 +77,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     static String getJsonFromUrl(String url) throws Exception {
         URL obj = new URL(url);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-//        con.setRequestProperty("User-Agent", "Mozilla");
-//        con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
         BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
         String result = in.readLine();
         while (in.ready()) {
@@ -93,9 +89,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(final GoogleMap googleMap) {
         mMap = googleMap;
+
+
+
+
+
+
         EXECUTOR.submit(new Runnable() {
             @Override
             public void run() {
+
+                if (tasks.size()>0){
+                    try {
+                        final LatLng latLng = getCoordinates(tasks.get(0).getCity());
+                        HANDLER.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                mMap.moveCamera(CameraUpdateFactory.zoomTo(10f));
+                                mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                            }
+                        });
+                    }catch (Exception ignored){}
+                }
                 drawMarkers(googleMap);
             }
         });
@@ -147,7 +162,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         markedTasks.put(marker, task);
 
                         if (a == 0) {
-                            mMap.moveCamera(CameraUpdateFactory.zoomTo(13f));
+                            mMap.moveCamera(CameraUpdateFactory.zoomTo(12f));
                             mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
                         }
                     }
@@ -263,76 +278,5 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
         return layout;
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    public static int expand(final View v) {
-        v.setVisibility(View.VISIBLE);
-
-        v.measure(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        final int targetHeight = v.getMeasuredHeight();
-
-        v.getLayoutParams().height = 1;
-        Animation a = new Animation() {
-            @Override
-            protected void applyTransformation(float interpolatedTime, Transformation t) {
-                v.getLayoutParams().height = interpolatedTime == 1
-                        ? ViewGroup.LayoutParams.WRAP_CONTENT
-                        : (int) (targetHeight * interpolatedTime);
-                v.requestLayout();
-            }
-
-            @Override
-            public boolean willChangeBounds() {
-                return true;
-            }
-        };
-
-        int duration = (int) (targetHeight / v.getContext().getResources().getDisplayMetrics().density);
-        a.setDuration(duration);
-        v.startAnimation(a);
-        return duration;
-    }
-
-    public static int collapse(final View v) {
-        final int initialHeight = v.getMeasuredHeight();
-
-        Animation a = new Animation() {
-            @Override
-            protected void applyTransformation(float interpolatedTime, Transformation t) {
-                if (interpolatedTime == 1) {
-                    v.setVisibility(View.GONE);
-                } else {
-                    v.getLayoutParams().height = initialHeight - (int) (initialHeight * interpolatedTime);
-                    v.requestLayout();
-                }
-            }
-
-            @Override
-            public boolean willChangeBounds() {
-                return true;
-            }
-        };
-
-        // 3dp/ms
-        int duration = initialHeight / 3;
-        a.setDuration(duration);
-
-        v.startAnimation(a);
-        return duration;
     }
 }

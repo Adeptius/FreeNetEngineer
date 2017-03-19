@@ -355,11 +355,8 @@ public class Task {
         if (address.contains("кв")) {
             address = address.substring(0, getAddr().lastIndexOf("кв") - 1);
         }
-
         address = address.replaceAll("частныйдом","").replaceAll("частный дом","");
-
         String result = city + " " + address;
-        System.out.println(result);
         return result;
     }
 }

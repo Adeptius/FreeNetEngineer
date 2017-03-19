@@ -78,13 +78,6 @@ public class MainActivity extends AppCompatActivity
         refreshLayout.setOnRefreshListener(this);
         refreshLayout.setColorSchemeColors(Color.GREEN, Color.BLUE, Color.parseColor("#FF9900"));
 
-        Calendar calendar = new GregorianCalendar();
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
-        if (day != Settings.getMessageOftheWeek()) {
-            showMessageOfTheDay();
-            Settings.setMessageOfTheWeek(day);
-        }
-
         if (!isMyServiceRunning(ServiceTaskChecker.class))
             startService(new Intent(MainActivity.this, ServiceTaskChecker.class));
 
@@ -126,49 +119,56 @@ public class MainActivity extends AppCompatActivity
 
         needToShow = ONLY_MY_TASK;
         refresh();
+        showMessageOfTheDay();
     }
 
 
     private void showMessageOfTheDay() {
-        EXECUTOR.submit(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    URL url = new URL("http://e404.ho.ua/FreeNetEngineer/MessageOfTheWeek.txt");
-                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                    connection.connect();
-                    InputStream stream = connection.getInputStream();
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-                    String s;
-                    final StringBuilder stringBuilder = new StringBuilder();
-                    while ((s = reader.readLine()) != null) {
-                        s = s.replace("\\n","\n");
-                        stringBuilder.append(s);
-                    }
+        Calendar calendar = new GregorianCalendar();
+        final int day = calendar.get(Calendar.DAY_OF_MONTH);
+        if (day != Settings.getMessageOftheWeek()) {
 
-                    if (!"".equals(stringBuilder.toString())) {
-                        HANDLER.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                                builder.setMessage(stringBuilder.toString());
-                                builder.setCancelable(false);
-                                builder.setPositiveButton("Закрыть", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        dialog.dismiss();
-                                    }
-                                });
-                                AlertDialog dialog = builder.create();
-                                dialog.show();
-                            }
-                        });
+            EXECUTOR.submit(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        URL url = new URL("http://e404.ho.ua/FreeNetEngineer/MessageOfTheWeek.txt");
+                        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                        connection.connect();
+                        InputStream stream = connection.getInputStream();
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+                        String s;
+                        final StringBuilder stringBuilder = new StringBuilder();
+                        while ((s = reader.readLine()) != null) {
+                            s = s.replace("\\n", "\n");
+                            stringBuilder.append(s);
+                        }
+
+                        if (!"".equals(stringBuilder.toString())) {
+                            HANDLER.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                                    builder.setMessage(stringBuilder.toString());
+                                    builder.setCancelable(false);
+                                    builder.setPositiveButton("Закрыть", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            dialog.dismiss();
+                                        }
+                                    });
+                                    AlertDialog dialog = builder.create();
+                                    dialog.show();
+                                }
+                            });//
+                            Settings.setMessageOfTheWeek(day);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
-            }
-        });
+            });
+        }
     }
 
     public void refresh() {

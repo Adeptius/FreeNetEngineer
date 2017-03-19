@@ -1,22 +1,15 @@
 package ua.adeptius.myapplications.activities;
 
-import android.app.Dialog;
+
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.view.ScrollingView;
-import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
 import android.widget.LinearLayout;
@@ -70,24 +63,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     static LatLng getCoordinates(String adress) throws Exception {
         adress = adress.replaceAll(" ", "+");
-        String json = getJsonFromUrl("https://maps.googleapis.com/maps/api/geocode/json?address=" +
-                adress + "&key=AIzaSyDV6vNmBDLNuFDN7ZwIyVpWNB8LYjKRiXs");
-//        System.out.println(json);
-
-        json = json.substring(json.indexOf("\"location\""));
+        String json = getJsonFromUrl("https://geocode-maps.yandex.ru/1.x/?geocode=" + adress
+                + "&format=json");
+        json = json.substring(json.indexOf("\"Point\""));
         json = json.substring(json.indexOf("{"));
         json = json.substring(0, json.indexOf("}") + 1);
         JSONObject jsonObject = new JSONObject(json);
-        double lat = jsonObject.getDouble("lat");
-        double lon = jsonObject.getDouble("lng");
+        String pos = jsonObject.getString("pos");
+        String[] coor = pos.split(" ");
+        double lat = Double.parseDouble(coor[1]);
+        double lon = Double.parseDouble(coor[0]);
         return new LatLng(lat, lon);
     }
 
     static String getJsonFromUrl(String url) throws Exception {
         URL obj = new URL(url);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-        con.setRequestProperty("User-Agent", "Mozilla");
-        con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
+//        con.setRequestProperty("User-Agent", "Mozilla");
+//        con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
         BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
         String result = in.readLine();
         while (in.ready()) {

@@ -111,8 +111,8 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-               MapsActivity.tasks = tasks;
-                Intent intent = new Intent(MainActivity.this, MapsActivity.class);
+                YandexActivity.tasks = tasks;
+                Intent intent = new Intent(MainActivity.this, YandexActivity.class);
                 startActivity(intent);
             }
         });

@@ -317,9 +317,11 @@ public class CableTestActivity extends AppCompatActivity implements TextView.OnE
                     tvCableResult.setText("Не верно введен IP адрес...");
                 if (arr.get(0).length() == 34 && arr.get(0).substring(17, 34).equals("not responding..."))
                     tvCableResult.setText("Ошибка. Возможно:\n1.Свич лежит.\n2. Его не существует.\n3.Тест проводится слишком часто.");
-                if (arr.get(0).substring(17, 23).equals("Данная"))
+                if (arr.get(0).substring(17, 23).equals("Данная")){
                     tvCableResult.setText("Эта модель коммутатора не поддерживается.");
-                if (arr.get(0).substring(17, 26).equals("Результат") && arr.size() == 3) {
+                }else if (arr.size()>1 && arr.get(2).startsWith("На этом порту коммутатора нет поддержки кабель тестера")){
+                    tvCableResult.setText("На этом порту коммутатора нет поддержки кабель тестера");
+                }else if (arr.get(0).substring(17, 26).equals("Результат") && arr.size() == 3) {
                     tvCableResult.setText("Ошибка. Возможно порт оптический.");
                 }
 

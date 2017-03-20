@@ -2,12 +2,14 @@ package ua.adeptius.myapplications.activities;
 
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AlertDialog;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -37,6 +39,7 @@ import java.util.Map;
 import ua.adeptius.myapplications.R;
 import ua.adeptius.myapplications.orders.Task;
 import ua.adeptius.myapplications.util.MyInfoWindowAdapter;
+import ua.adeptius.myapplications.util.Settings;
 import ua.adeptius.myapplications.util.Visual;
 
 import static ua.adeptius.myapplications.util.Utilites.EXECUTOR;
@@ -52,6 +55,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+        if (Settings.isSwitchPortrait())
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -89,11 +94,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(final GoogleMap googleMap) {
         mMap = googleMap;
-
-
-
-
-
+//        googleMap.setBuildingsEnabled(true);
+//        googleMap.setIndoorEnabled(true);
+//        googleMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
 
         EXECUTOR.submit(new Runnable() {
             @Override
@@ -132,7 +135,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             final Task task = tasks.get(i);
             try {
                 final LatLng latLng = getCoordinates(task.getAddressForMap());
-                final int iconId = Visual.getIconForMap(task.getType_name());
+                final int iconId = task.getSubject().equals("Юр") ?
+                R.drawable.map_vip : Visual.getIconForMap(task.getType_name());
 
                 HANDLER.post(new Runnable() {
                     @Override
@@ -153,11 +157,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 HANDLER.post(new Runnable() {
                     @Override
                     public void run() {
+                        DisplayMetrics metrics = new DisplayMetrics();
+                        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+                        int screenWidth = metrics.widthPixels;
+                        int density = metrics.densityDpi;
+                        int neededWidht = screenWidth/10;
+                        int height = (int)(neededWidht * 1.6);
+
                         Marker marker = googleMap.addMarker(new MarkerOptions()
                                 .position(latLng)
                                 .title(task.getType_name())
                                 .snippet(task.getRterm())
-                                .icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons(iconId, 100, 160)))
+                                .icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons(iconId, neededWidht, height)))
                         );
                         markedTasks.put(marker, task);
 

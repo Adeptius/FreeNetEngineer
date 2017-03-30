@@ -39,6 +39,7 @@ import java.util.Map;
 
 import ua.adeptius.myapplications.R;
 import ua.adeptius.myapplications.connection.DataBase;
+import ua.adeptius.myapplications.dao.GetInfo;
 import ua.adeptius.myapplications.orders.Task;
 import ua.adeptius.myapplications.service.ServiceTaskChecker;
 import ua.adeptius.myapplications.util.Settings;
@@ -65,6 +66,7 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         myLog("загружен мэйн активити");
+        Settings.setsPref(getSharedPreferences("settings", MODE_PRIVATE));
 
         if (Settings.isSwitchPortrait())
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
@@ -201,7 +203,7 @@ public class MainActivity extends AppCompatActivity
 
     public void refreshMainScreen() {
         // Добавляем превью каждой заявки в наш лейаут
-        if (!(tasks.size() == 0)) {
+        if (tasks.size() != 0) {
             ArrayList<View> views = new ArrayList<>();
             for (int i = 0; i < tasks.size(); i++) {
                 LinearLayout horizontalVievForTask = Visual.getHeader(tasks.get(i), this);
@@ -281,33 +283,43 @@ public class MainActivity extends AppCompatActivity
         try {
             tasks = null;
             String[] request = null;
+
             if (needToShow == ONLY_MY_TASK) { // Тут должно быть ONLY_MY_TASK
-                myLog("Запрашиваю назначенные заявки");
-                request = new String[3];
-                request[0] = "http://188.231.188.188/api/task_api.php";
-                request[1] = "begun=" + Settings.getCurrentLogin();
-                request[2] = "drowssap=" + Settings.getCurrentPassword();
+                tasks = GetInfo.getAssignedTask();
             }
 
             if (needToShow == ONLY_NOT_ASSIGNED_TASK) { // тут должно быть ONLY_NOT_ASSIGNED_TASK
-                myLog("Запрашиваю не назначенные заявки");
-                request = new String[4];
-                request[0] = "http://188.231.188.188/api/notassigned_api.php";
-                request[1] = "begun=" + Settings.getCurrentLogin();
-                request[2] = "drowssap=" + Settings.getCurrentPassword();
-                request[3] = "taccepted=notassigned";
+                tasks = GetInfo.getNotAssignedTask();
             }
 
-            ArrayList<Map<String, String>> arrayMap = EXECUTOR.submit(new DataBase(request)).get();
-            tasks = new ArrayList<>(); // будем все таски пихать сюда
-            if (!arrayMap.get(0).containsKey("error")) { // если нам не пришло [{"error":"No_tasks"}]
-                myLog("Заявки есть. Создаю обьекты - заявки");
-                for (int i = 0; i < arrayMap.size(); i++) { // Для каждого обьекта "заявка"
-                    Map<String, String> temp = arrayMap.get(i);
-                    tasks.add(Utilites.createTask(temp));
-                }
-            }
+//            if (needToShow == ONLY_MY_TASK) { // Тут должно быть ONLY_MY_TASK
+//                myLog("Запрашиваю назначенные заявки");
+//                request = new String[3];
+//                request[0] = "http://188.231.188.188/api/task_api.php";
+//                request[1] = "begun=" + Settings.getCurrentLogin();
+//                request[2] = "drowssap=" + Settings.getCurrentPassword();
+//            }
+//
+//            if (needToShow == ONLY_NOT_ASSIGNED_TASK) { // тут должно быть ONLY_NOT_ASSIGNED_TASK
+//                myLog("Запрашиваю не назначенные заявки");
+//                request = new String[4];
+//                request[0] = "http://188.231.188.188/api/notassigned_api.php";
+//                request[1] = "begun=" + Settings.getCurrentLogin();
+//                request[2] = "drowssap=" + Settings.getCurrentPassword();
+//                request[3] = "taccepted=notassigned";
+//            }
+//
+//            ArrayList<Map<String, String>> arrayMap = EXECUTOR.submit(new DataBase(request)).get();
+//            tasks = new ArrayList<>(); // будем все таски пихать сюда
+//            if (!arrayMap.get(0).containsKey("error")) { // если нам не пришло [{"error":"No_tasks"}]
+//                myLog("Заявки есть. Создаю обьекты - заявки");
+//                for (int i = 0; i < arrayMap.size(); i++) { // Для каждого обьекта "заявка"
+//                    Map<String, String> temp = arrayMap.get(i);
+//                    tasks.add(Utilites.createTask(temp));
+//                }
+//            }
         } catch (Exception e) {
+            tasks = new ArrayList<>();
             HANDLER.post(new Runnable() {
                 @Override
                 public void run() {

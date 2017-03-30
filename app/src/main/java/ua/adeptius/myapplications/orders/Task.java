@@ -1,13 +1,11 @@
 package ua.adeptius.myapplications.orders;
 
-import com.google.android.gms.maps.model.Marker;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-
-import static ua.adeptius.myapplications.util.Utilites.myLog;
 
 public class Task {
 
@@ -39,14 +37,36 @@ public class Task {
     private String garantServise;
     private String sw_place;
 
-    private Marker marker;
-
-    public Marker getMarker() {
-        return marker;
+    public Task() {
     }
 
-    public void setMarker(Marker marker) {
-        this.marker = marker;
+    public Task(JSONObject object) throws Exception {
+        setId(object.getString("id"));
+        setCard(object.getString("card"));
+        setGerkon(object.getString("gerkon"));
+        setSubject(object.getString("subject"));
+        setCity(object.getString("city"));
+        setDistrikt(object.getString("distrikt"));
+        setType_name(object.getString("type_name"));
+        setIp(object.getString("ip"));
+        setMasc(object.getString("masc"));
+        setGateway(object.getString("gateway"));
+        setSwitch_ip(object.getString("switch_ip"));
+        setSwitch_port(object.getString("switch_port"));
+        setSw_place(object.getString("sw_place"));
+        setLoglk(object.getString("loglk"));
+        setPasslk(object.getString("passlk"));
+        setWho(object.getString("who"));
+        setTermin(object.getString("termin"));
+        setRterm(object.getString("rterm"));
+        setName(object.getString("name"));
+        setPhone(object.getString("phone"));
+        setAddr(object.getString("addr"));
+        setDatetime(object.getString("datetime"));
+        setUser(object.getString("user"));
+        setComment(object.getString("comment"));
+        setGarantServise(object.getString("gsrv"));
+
     }
 
     public String getGarantServise() {
@@ -140,10 +160,14 @@ public class Task {
     }
 
     public String getSwitch_ip() {
+        if ("".equals(switch_ip))
+            return "Неизвестно";
         return switch_ip;
     }
 
     public String getSwitch_port() {
+        if ("".equals(switch_port))
+            return "Неизвестно";
         return switch_port;
     }
 
@@ -355,7 +379,12 @@ public class Task {
         if (address.contains("кв")) {
             address = address.substring(0, getAddr().lastIndexOf("кв") - 1);
         }
-        address = address.replaceAll("частныйдом","").replaceAll("частный дом","");
+        address = address
+                .replaceAll("частныйдом","")
+                .replaceAll("частный дом","")
+                .replaceAll("- Виноградарь","")
+                .replaceAll("Ст\\.Петровцы","Старые Петровцы")
+        ;
         String result = city + " " + address;
         return result;
     }

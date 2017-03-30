@@ -1,18 +1,52 @@
 package ua.adeptius.myapplications.dao;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import ua.adeptius.myapplications.model.GerkonStatus;
 import ua.adeptius.myapplications.model.OpeningBoxStatus;
+import ua.adeptius.myapplications.orders.Task;
 import ua.adeptius.myapplications.orders.TaskHistory;
 import ua.adeptius.myapplications.util.Settings;
 import ua.adeptius.myapplications.util.Utilites;
 
+import static ua.adeptius.myapplications.R.id.map;
+
 
 public class GetInfo {
+
+
+    public static ArrayList<Task> getAssignedTask() throws Exception{
+        Utilites.myLog("Запрашиваю назначенные заявки");
+        return  getTasks(new HashMap<>(), "http://188.231.188.188/api/task_api.php");
+    }
+
+
+    public static ArrayList<Task> getNotAssignedTask() throws Exception{
+        Utilites.myLog("Запрашиваю неназначенные заявки");
+        HashMap<String, String> map = new HashMap<>();
+        map.put("taccepted", "notassigned");
+        return getTasks(map, "http://188.231.188.188/api/notassigned_api.php");
+    }
+
+    private static ArrayList<Task> getTasks(HashMap map, String url) throws Exception{
+        ArrayList<Task> allTasks = new ArrayList<>();
+        addLogAndPass(map);
+        String s = Web.sendPost(url, map);
+        if (s.equals("[{\"error\":\"No_tasks\"}]")) return new ArrayList<>();
+        JSONArray jsonArray = new JSONArray(s);
+
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject object = jsonArray.getJSONObject(i);
+            Task task = new Task(object);
+            allTasks.add(task);
+        }
+        return allTasks;
+    }
 
     public static boolean acceptTast(String taskId)throws Exception{
         Utilites.myLog("Запрашиваю назначение заявки на себя " + taskId);
@@ -101,7 +135,7 @@ public class GetInfo {
         return map;
     }
 
-    public static String[] splitJson(String json){
+    private static String[] splitJson(String json){
         String[] splittedJson;
         if (json.contains("},{")){
             splittedJson = json.split("\\},\\{");

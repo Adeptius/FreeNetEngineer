@@ -26,4 +26,9 @@
         <item name="android:background">#1976D2</item>
     </style>
 
+    <style name="AppTheme.NoActionBarYandex">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
 </resources>

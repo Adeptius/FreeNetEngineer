@@ -64,7 +64,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".activities.GerkonActivity" />
-        <activity android:name=".activities.YandexActivity"></activity>
+        <activity android:name=".activities.YandexActivity"
+            android:theme="@style/AppTheme.NoActionBarYandex"/>
     </application>
 
 </manifest>

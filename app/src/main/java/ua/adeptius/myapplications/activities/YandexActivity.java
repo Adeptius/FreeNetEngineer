@@ -17,6 +17,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -89,9 +90,9 @@ public class YandexActivity extends AppCompatActivity {
         errorDrawingTasks = new ArrayList<>();
         for (int i = 0; i < tasks.size(); i++) {
             final Task task = tasks.get(i);
+            System.out.println(task.getCard());
             try {
                 final Double[] coordinates = getCoordinates(task.getAddressForMap());
-                System.out.println(task.getAddr() + " " + coordinates[0] + " " + coordinates[1]);
                 markedTasks.put(task,coordinates);
                 final int iconId = task.getSubject().equals("Юр") ?
                         R.drawable.map_vip : Visual.getIconForMap(task.getType_name());
@@ -140,30 +141,63 @@ public class YandexActivity extends AppCompatActivity {
 
     static Double[] getCoordinates(String adress) throws Exception {
         adress = adress.replaceAll(" ", "+");
-        URL obj = new URL("https://geocode-maps.yandex.ru/1.x/?geocode=" + adress + "&format=json");
-        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+        URL url = new URL("https://geocode-maps.yandex.ru/1.x/?geocode=" + adress + "&format=json");
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
         BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
         String result = in.readLine();
         while (in.ready()) {
             result += in.readLine();
         }
         in.close();
-        result = result.substring(result.indexOf("\"Point\""));
-        result = result.substring(result.indexOf("{"));
-        result = result.substring(0, result.indexOf("}") + 1);
-        JSONObject jsonObject = new JSONObject(result);
-        String pos = jsonObject.getString("pos");
-        String[] coor = pos.split(" ");
-        Double[] coordinates = {Double.parseDouble(coor[0]), Double.parseDouble(coor[1])};
-        return coordinates;
+
+        JSONArray results = new JSONObject(result).getJSONObject("response").getJSONObject("GeoObjectCollection").getJSONArray("featureMember");
+        int resultCount = results.length();
+        for (int i = 0; i < resultCount; i++) {
+            JSONObject obj = results.getJSONObject(i).getJSONObject("GeoObject");
+            String country = obj.getJSONObject("metaDataProperty").getJSONObject("GeocoderMetaData").getJSONObject("Address").getString("country_code");
+            if (country.equals("UA")){
+                String[] coor = obj.getJSONObject("Point").getString("pos").split(" ");
+                Double[] coordinates = {Double.parseDouble(coor[0]), Double.parseDouble(coor[1])};
+                return coordinates;
+            }
+        }
+        return getCoordinatesFromGoogle(adress);
     }
 
+
+    static Double[] getCoordinatesFromGoogle(String adress) throws Exception {
+        adress = adress.replaceAll(" ", "+");
+        URL url = new URL("https://maps.googleapis.com/maps/api/geocode/json?address=" +
+                adress + "&key=AIzaSyD60Sy01JSEjVv8ZpHb3lKnvR569fPkC-c");
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+        String result = in.readLine();
+        while (in.ready()) {
+            result += in.readLine();
+        }
+        in.close();
+
+        JSONArray results = new JSONObject(result).getJSONArray("results");
+        int foundedCount = results.length();
+        for (int i = 0; i < foundedCount; i++) {
+            JSONObject obj = results.getJSONObject(i);
+            JSONArray names = obj.getJSONArray("address_components");
+            for (int j = 0; j < names.length() ; j++) {
+                if ("UA".equals(names.getJSONObject(j).getString("short_name"))){
+                    JSONObject coordinates = obj.getJSONObject("geometry").getJSONObject("location");
+                    double lat = coordinates.getDouble("lng");
+                    double lon = coordinates.getDouble("lat");
+                    return new Double[]{lat,lon};
+                }
+            }
+        }
+        throw new Exception();
+    }
 
     public Bitmap resizeMapIcons(int iconId) {
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
         int screenWidth = metrics.widthPixels;
-        int density = metrics.densityDpi;
         int neededWidht = screenWidth / 10;
         int height = iconHeigth =(int) (neededWidht * 1.6);
         Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(), iconId);

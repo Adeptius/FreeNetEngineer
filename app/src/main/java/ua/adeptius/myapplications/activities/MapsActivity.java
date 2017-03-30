@@ -65,8 +65,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     static LatLng getCoordinates(String adress) throws Exception {
         adress = adress.replaceAll(" ", "+");
-        String json = getJsonFromUrl("https://geocode-maps.yandex.ru/1.x/?geocode=" + adress
-                + "&format=json");
+        String json = getJsonFromUrl("https://maps.googleapis.com/maps/api/geocode/json?address=" +
+                adress + "&key=AIzaSyDV6vNmBDLNuFDN7ZwIyVpWNB8LYjKRiXs");
         System.out.println(json);
         json = json.substring(json.indexOf("\"Point\""));
         json = json.substring(json.indexOf("{"));

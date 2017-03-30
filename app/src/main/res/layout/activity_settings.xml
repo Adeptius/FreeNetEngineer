@@ -28,7 +28,8 @@
         android:layout_alignParentTop="true"
         android:layout_marginTop="28dp"
         android:checked="true"
-        android:text="Проверять наличие новых заявок" />
+        android:text="Проверять наличие новых заявок"
+        android:layout_alignParentLeft="true" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -46,7 +47,9 @@
             android:layout_weight="1"
             android:checked="false"
             android:gravity="center_vertical|center_horizontal"
-            android:text="Звук" />
+            android:text="Звук"
+            android:layout_alignParentLeft="true"
+            android:layout_toLeftOf="@+id/switchVibro" />
 
         <Switch
             android:id="@+id/switchVibro"
@@ -71,7 +74,9 @@
         android:layout_gravity="center_vertical"
         android:layout_marginTop="0dp"
         android:text="Часы оповещения с:"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:layout_alignRight="@+id/seek_bar_from"
+        android:layout_alignParentLeft="true" />
 
     <SeekBar
         android:id="@+id/seek_bar_from"
@@ -83,7 +88,9 @@
         android:layout_gravity="right"
         android:indeterminate="false"
         android:max="24"
-        android:progress="8" />
+        android:progress="8"
+        android:layout_alignRight="@+id/seek_bar_text_view_to"
+        android:layout_alignParentLeft="true" />
 
     <TextView
         android:id="@+id/seek_bar_text_view_to"
@@ -93,7 +100,9 @@
         android:layout_alignParentStart="true"
         android:layout_below="@+id/seek_bar_from"
         android:text="до:"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:layout_alignRight="@+id/seek_bar_to"
+        android:layout_alignParentLeft="true" />
 
     <SeekBar
         android:id="@+id/seek_bar_to"
@@ -104,7 +113,9 @@
         android:layout_below="@+id/seek_bar_text_view_to"
         android:indeterminate="false"
         android:max="24"
-        android:progress="18" />
+        android:progress="18"
+        android:layout_alignRight="@+id/new_tasks_switch"
+        android:layout_alignParentLeft="true" />
 
     <LinearLayout
         android:layout_width="match_parent"

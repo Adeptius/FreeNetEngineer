@@ -82,10 +82,10 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
 
         String taskNumber = intent.getStringExtra("position");
 
-        if (taskNumber != null){
+        if (taskNumber != null) {
             slot = Integer.parseInt(taskNumber);
             task = MainActivity.tasks.get(slot);
-        }else {
+        } else {
             String taskId = intent.getStringExtra("id");
             task = findTaskById(taskId);
         }
@@ -126,7 +126,6 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
         });
         collapsingToolbarLayout.setTitle(phoneForHeader);
 
-
         EXECUTOR.submit(new Runnable() {
             @Override
             public void run() {
@@ -139,7 +138,7 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
         MainActivity.tasks.get(slot);
 
         for (Task tas : MainActivity.tasks) {
-            if (tas.getId().equals(taskId)){
+            if (tas.getId().equals(taskId)) {
                 return tas;
             }
         }
@@ -213,8 +212,8 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
                 .append(" Геркон" + ": " + task.getGerkon());
         if (task.getSw_place() != null) {
             if (!"null".equals(task.getSw_place())) {
-                sb.append("\n" + task.getSw_place()
-                        .replaceAll("свич стоит в", "Расположение свича: "));
+                sb.append("\nРасположение свича: " + task.getSw_place());
+//                        .replaceAll("свич стоит в", ""));
             }
         }
 

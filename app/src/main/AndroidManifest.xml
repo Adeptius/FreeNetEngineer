@@ -40,7 +40,7 @@
             android:label="Карта заявок" />
         <activity android:name=".activities.CableTestActivity" />
 
-        <service android:name=".service.ServiceTaskChecker" />
+        <service android:name=".service.BackgroundService" />
 
         <receiver
             android:name=".service.AutoRun"

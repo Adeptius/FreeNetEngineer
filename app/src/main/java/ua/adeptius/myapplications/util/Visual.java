@@ -13,7 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import ua.adeptius.myapplications.R;
-import ua.adeptius.myapplications.service.ServiceTaskChecker;
+import ua.adeptius.myapplications.service.BackgroundService;
 import ua.adeptius.myapplications.orders.Task;
 
 public class Visual {
@@ -39,7 +39,7 @@ public class Visual {
         LinearLayout horizontalVievForTask = new LinearLayout(context);
         horizontalVievForTask.setOrientation(LinearLayout.HORIZONTAL);
         horizontalVievForTask.setLayoutParams(MATCH_WRAP);
-        if (ServiceTaskChecker.newTasksIds.contains(task.getId()))
+        if (BackgroundService.newTasksIds.contains(task.getId()))
             horizontalVievForTask.setBackgroundColor(NEW_TASKS_COLOR);
         else horizontalVievForTask.setBackgroundColor(CORPORATE_COLOR);
 

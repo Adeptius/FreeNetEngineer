@@ -35,15 +35,12 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.Map;
 
 import ua.adeptius.myapplications.R;
-import ua.adeptius.myapplications.connection.DataBase;
 import ua.adeptius.myapplications.dao.GetInfo;
 import ua.adeptius.myapplications.orders.Task;
-import ua.adeptius.myapplications.service.ServiceTaskChecker;
+import ua.adeptius.myapplications.service.BackgroundService;
 import ua.adeptius.myapplications.util.Settings;
-import ua.adeptius.myapplications.util.Utilites;
 import ua.adeptius.myapplications.util.Visual;
 
 import static ua.adeptius.myapplications.util.Utilites.EXECUTOR;
@@ -80,14 +77,14 @@ public class MainActivity extends AppCompatActivity
         refreshLayout.setOnRefreshListener(this);
         refreshLayout.setColorSchemeColors(Color.GREEN, Color.BLUE, Color.parseColor("#FF9900"));
 
-        if (!isMyServiceRunning(ServiceTaskChecker.class))
-            startService(new Intent(MainActivity.this, ServiceTaskChecker.class));
+        if (!isMyServiceRunning(BackgroundService.class))
+            startService(new Intent(MainActivity.this, BackgroundService.class));
 
-        if (ServiceTaskChecker.newTasksIds == null) {
-            ServiceTaskChecker.newTasksIds = new ArrayList<>();
+        if (BackgroundService.newTasksIds == null) {
+            BackgroundService.newTasksIds = new ArrayList<>();
         }
-        if (ServiceTaskChecker.wasTasksIds == null) {
-            ServiceTaskChecker.wasTasksIds = new ArrayList<>();
+        if (BackgroundService.wasTasksIds == null) {
+            BackgroundService.wasTasksIds = new ArrayList<>();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -207,8 +204,8 @@ public class MainActivity extends AppCompatActivity
             ArrayList<View> views = new ArrayList<>();
             for (int i = 0; i < tasks.size(); i++) {
                 LinearLayout horizontalVievForTask = Visual.getHeader(tasks.get(i), this);
-                if (!ServiceTaskChecker.wasTasksIds.contains(tasks.get(i).getId()))
-                    ServiceTaskChecker.wasTasksIds.add(tasks.get(i).getId());
+                if (!BackgroundService.wasTasksIds.contains(tasks.get(i).getId()))
+                    BackgroundService.wasTasksIds.add(tasks.get(i).getId());
                 horizontalVievForTask.setOnClickListener(this);
                 horizontalVievForTask.setId(i);
                 views.add(horizontalVievForTask);
@@ -362,14 +359,14 @@ public class MainActivity extends AppCompatActivity
         intent.putExtra("position", a);
 
         String idOfShoosenTask = tasks.get(v.getId()).getId();
-        if (ServiceTaskChecker.newTasksIds.contains(idOfShoosenTask)) {
-            ServiceTaskChecker.newTasksIds.remove(idOfShoosenTask);
+        if (BackgroundService.newTasksIds.contains(idOfShoosenTask)) {
+            BackgroundService.newTasksIds.remove(idOfShoosenTask);
             v.setBackgroundColor(Visual.CORPORATE_COLOR);
         }// если id заявки на которую мы клацнули есть в списке id новых заявок -
         // то открывая - удаляем её из списка новых и делаем её цвет синим
-        if (!ServiceTaskChecker.wasTasksIds.contains(idOfShoosenTask))
-            ServiceTaskChecker.wasTasksIds.add(idOfShoosenTask);
-        ServiceTaskChecker.wasNewTaskCountInLastTime = ServiceTaskChecker.newTasksIds.size();
+        if (!BackgroundService.wasTasksIds.contains(idOfShoosenTask))
+            BackgroundService.wasTasksIds.add(idOfShoosenTask);
+        BackgroundService.wasNewTaskCountInLastTime = BackgroundService.newTasksIds.size();
         startActivity(intent);
     }
 
@@ -409,7 +406,7 @@ public class MainActivity extends AppCompatActivity
             startActivity(new Intent(this, AboutActivity.class));
 
         } else if (id == R.id.nav_exit) {
-            stopService(new Intent(this, ServiceTaskChecker.class));
+            stopService(new Intent(this, BackgroundService.class));
             Settings.eraseLoginAndPassword();
             MainActivity.this.finish();
 

@@ -20,6 +20,24 @@ import static ua.adeptius.myapplications.R.id.map;
 public class GetInfo {
 
 
+    public static ArrayList<String> getAllTasksIds() throws Exception{
+        Utilites.myLog("Запрашиваю id заявок");
+        HashMap<String, String> map = new HashMap<>();
+        addLogAndPass(map);
+        ArrayList<String> tasks = new ArrayList<>();
+        String result = Web.sendPost("http://188.231.188.188/api/task_api_id.php", map);
+//        String result = Web.sendPost("http://195.181.208.31/web/support/tasks", map);
+        JSONArray array = new JSONArray(result);
+        for (int i = 0; i < array.length(); i++) {
+            JSONObject jsonObject = array.getJSONObject(i);
+            String id = jsonObject.getString("id");
+            if (!"".equals(id)) {
+                tasks.add(id);
+            }
+        }
+        return tasks;
+    }
+
     public static ArrayList<Task> getAssignedTask() throws Exception{
         Utilites.myLog("Запрашиваю назначенные заявки");
         return  getTasks(new HashMap<>(), "http://188.231.188.188/api/task_api.php");

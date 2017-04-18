@@ -7,8 +7,8 @@ android {
         applicationId "ua.adeptius.freenetengineer"
         minSdkVersion 16
         targetSdkVersion 23
-        versionCode 42
-        versionName "4.2"
+        versionCode 43
+        versionName "4.3"
     }
     testOptions {
         unitTests.returnDefaultValues = true

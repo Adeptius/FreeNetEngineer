@@ -40,7 +40,7 @@ import ua.adeptius.myapplications.connection.DataBase;
 import ua.adeptius.myapplications.dao.GetInfo;
 import ua.adeptius.myapplications.orders.Task;
 import ua.adeptius.myapplications.orders.TaskHistory;
-import ua.adeptius.myapplications.service.ServiceTaskChecker;
+import ua.adeptius.myapplications.service.BackgroundService;
 import ua.adeptius.myapplications.util.Settings;
 import ua.adeptius.myapplications.util.Utilites;
 import ua.adeptius.myapplications.util.Visual;
@@ -507,7 +507,7 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
                     Map<String, String> map = EXECUTOR.submit(new DataBase(request)).get().get(0);
                     if (map.get("task").equals("accepted")) {
                         takeOK = true;
-                        ServiceTaskChecker.wasTasksIds.add(task.getId());
+                        BackgroundService.wasTasksIds.add(task.getId());
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

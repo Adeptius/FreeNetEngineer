@@ -1,74 +1,68 @@
 package ua.adeptius.myapplications.service;
 
-import android.app.NotificationManager;
+
 import android.app.PendingIntent;
-import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.media.RingtoneManager;
-import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.Map;
 
-import ua.adeptius.myapplications.connection.DataBase;
-import ua.adeptius.myapplications.activities.MainActivity;
 import ua.adeptius.myapplications.R;
+import ua.adeptius.myapplications.activities.MainActivity;
+import ua.adeptius.myapplications.dao.GetInfo;
 import ua.adeptius.myapplications.util.Settings;
+import ua.adeptius.myapplications.util.Utilites;
+import static ua.adeptius.myapplications.service.BackgroundService.mNotificationManager;
+import static ua.adeptius.myapplications.service.BackgroundService.newTasksIds;
+import static ua.adeptius.myapplications.service.BackgroundService.wasNewTaskCountInLastTime;
+import static ua.adeptius.myapplications.service.BackgroundService.wasTasksIds;
 import static ua.adeptius.myapplications.util.Utilites.myLog;
 
-import static ua.adeptius.myapplications.util.Utilites.EXECUTOR;
+class Checker extends Thread {
 
-public class ServiceTaskChecker extends Service {
-
-    public static ArrayList<String> newTasksIds;
-    public static ArrayList<String> wasTasksIds;
-    public static String currentLogin;
-    public static String currentPassword;
     public static final int NOTIFICATION_ID = 1;
-    public static int wasNewTaskCountInLastTime = 0;
-    static Context context;
-    static NotificationManager mNotificationManager;
+    private static Context context;
 
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        wasTasksIds = getAllTasksIds();
-        if (newTasksIds == null) newTasksIds = new ArrayList<>();
+    Checker(Context context) {
+        this.context = context;
+        start();
+    }
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (true) {
-                    if (isNoticeAllowedNow()) {
-                        ArrayList<String> collected = getAllTasksIds();
-                        for (int i = 0; i < collected.size(); i++) {
-                            if (!wasTasksIds.contains(collected.get(i))) {
-                                newTasksIds.add(collected.get(i));
-                                wasTasksIds.add(collected.get(i));
-                                myLog("Появилась новая заявка!!! id: " + collected.get(i));
-                            }
-                        }
+    @Override
+    public void run() {
+        if (wasTasksIds == null) {
+            try {
+                wasTasksIds = GetInfo.getAllTasksIds();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
 
-                        myLog("Новых заявок: " + newTasksIds.size());
-                       // if (newTasksIds.size() > 0) {
-                            if (wasNewTaskCountInLastTime != newTasksIds.size()) {
-                                showNotification(newTasksIds.size());
-                                wasNewTaskCountInLastTime = newTasksIds.size();
-                            }
-                        //}
-                    }
-                    try {
-                        Thread.sleep(600000);
-                    } catch (Exception ignored) {
-                    }
+        if (isNoticeAllowedNow()) {
+//        if (true) {
+            ArrayList<String> collected = getAllTasksIds();
+            for (int i = 0; i < collected.size(); i++) {
+                if (!wasTasksIds.contains(collected.get(i))) {
+                    newTasksIds.add(collected.get(i));
+                    wasTasksIds.add(collected.get(i));
+                    myLog("Появилась новая заявка!!! id: " + collected.get(i));
                 }
             }
-        }).start();
-        return super.onStartCommand(intent, flags, startId);
+
+            myLog("Новых заявок: " + newTasksIds.size());
+            // if (newTasksIds.size() > 0) {
+            if (wasNewTaskCountInLastTime != newTasksIds.size()) {
+                showNotification(newTasksIds.size());
+                wasNewTaskCountInLastTime = newTasksIds.size();
+            }
+            //}
+        }
     }
 
     public static boolean isNoticeAllowedNow() {
@@ -116,22 +110,13 @@ public class ServiceTaskChecker extends Service {
         }
     }
 
-    private ArrayList<String> getAllTasksIds() {// загрузка всех текущих айдишек
+    public static ArrayList<String> getAllTasksIds() {// загрузка всех текущих айдишек
         ArrayList<String> ids = new ArrayList<>();
-        myLog("Запрашиваю айди заявок");
-        String[] request = new String[3];
-        request[0] = "http://188.231.188.188/api/task_api_id.php";
-        request[1] = "begun=" + currentLogin;
-        request[2] = "drowssap=" + currentPassword;
-
         try {
-            ArrayList<Map<String, String>> arrayMap = EXECUTOR.submit(new DataBase(request)).get();
-            for (int i = 0; i < arrayMap.size(); i++) {
-                Map<String, String> map = arrayMap.get(i);
-                if(map.get("id") != null){
-                    ids.add(map.get("id"));
-                    myLog("Служба получила айдишку: " + map.get("id"));
-                }
+            ids = GetInfo.getAllTasksIds();
+            Utilites.myLog("Служба получила id:");
+            for (String id : ids) {
+                Utilites.myLog(id);
             }
 
             for (int i = newTasksIds.size() - 1; i >= 0; i--) {
@@ -148,30 +133,10 @@ public class ServiceTaskChecker extends Service {
                     wasTasksIds.remove(i);
                 }
             }
-        } catch (Exception ignored) {
-            myLog("Ошибка получения id из базы в фоне");
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return ids;
-    }
-
-    public IBinder onBind(Intent intent) {
-        return null;
-    }
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        myLog("Сервис запущен");
-        Settings.setsPref(getSharedPreferences("settings", MODE_PRIVATE));
-        currentLogin = Settings.getCurrentLogin();
-        currentPassword = Settings.getCurrentPassword();
-        context = this;
-        mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        myLog("Сервис уничтожен: " + stopSelfResult(1));
     }
 }

@@ -7,18 +7,21 @@ android {
         applicationId "ua.adeptius.freenetengineer"
         minSdkVersion 16
         targetSdkVersion 23
-        versionCode 43
-        versionName "4.3"
+        versionCode 47
+        versionName "4.7"
     }
+
     testOptions {
         unitTests.returnDefaultValues = true
     }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
     productFlavors {
     }
 }

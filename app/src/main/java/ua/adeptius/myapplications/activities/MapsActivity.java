@@ -94,10 +94,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(final GoogleMap googleMap) {
         mMap = googleMap;
-//        googleMap.setBuildingsEnabled(true);
-//        googleMap.setIndoorEnabled(true);
-//        googleMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-
         EXECUTOR.submit(new Runnable() {
             @Override
             public void run() {

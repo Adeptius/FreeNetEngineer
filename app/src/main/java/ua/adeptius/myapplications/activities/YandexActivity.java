@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import ru.yandex.yandexmapkit.MapController;
 import ru.yandex.yandexmapkit.MapView;
@@ -38,11 +40,13 @@ import ru.yandex.yandexmapkit.utils.GeoPoint;
 import ua.adeptius.myapplications.R;
 import ua.adeptius.myapplications.orders.Task;
 import ua.adeptius.myapplications.util.Settings;
+import ua.adeptius.myapplications.util.Utilites;
 import ua.adeptius.myapplications.util.Visual;
 
 import static ua.adeptius.myapplications.util.Utilites.EXECUTOR;
 import static ua.adeptius.myapplications.util.Utilites.HANDLER;
 import static ua.adeptius.myapplications.util.Visual.MATCH_WRAP;
+import static ua.adeptius.myapplications.util.Visual.getIconForMap;
 
 public class YandexActivity extends AppCompatActivity {
 
@@ -52,6 +56,7 @@ public class YandexActivity extends AppCompatActivity {
     MapController mMapController;
     Overlay overlay;
     int iconHeigth;
+    public static Double[] currentSityCoordinates;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +68,7 @@ public class YandexActivity extends AppCompatActivity {
         mapView.showBuiltInScreenButtons(true);
         mapView.showScaleView(false);
         mMapController = mapView.getMapController();
-        mMapController.setPositionNoAnimationTo(new GeoPoint(49.753286, 30.646107),8);
+        mMapController.setPositionNoAnimationTo(new GeoPoint(49.753286, 30.646107), 8);
         mOverlayManager = mMapController.getOverlayManager();
         mOverlayManager.getMyLocation().setEnabled(true);
         overlay = new Overlay(mMapController);
@@ -71,11 +76,14 @@ public class YandexActivity extends AppCompatActivity {
         EXECUTOR.submit(new Runnable() {
             @Override
             public void run() {
-                if (tasks.size()>0){
-                    try {
-                        final Double[] coordinates = getCoordinates(tasks.get(0).getCity());
-                        mMapController.setPositionNoAnimationTo(new GeoPoint(coordinates[1], coordinates[0]),12);
-                    }catch (Exception ignored){}
+                if (tasks.size() > 0) {
+                    try{
+                        String city = tasks.get(0).getCity();
+                        Utilites.myLog("Ищу город " + city);
+                        currentSityCoordinates = getCoordinates(city);
+                        mMapController.setPositionNoAnimationTo(new GeoPoint(currentSityCoordinates[1], currentSityCoordinates[0]), 11);
+                    } catch (Exception ignored) {
+                    }
                 }
                 showObject();
             }
@@ -88,39 +96,58 @@ public class YandexActivity extends AppCompatActivity {
     public void showObject() {
         markedTasks = new HashMap<>();
         errorDrawingTasks = new ArrayList<>();
+        google = yandex = 0;
+        final AtomicInteger atomicInteger = new AtomicInteger(0);
         for (int i = 0; i < tasks.size(); i++) {
-            final Task task = tasks.get(i);
-            System.out.println(task.getCard());
-            try {
-                final Double[] coordinates = getCoordinates(task.getAddressForMap());
-                markedTasks.put(task,coordinates);
-                final int iconId = task.getSubject().equals("Юр") ?
-                        R.drawable.map_vip : Visual.getIconForMap(task.getType_name());
-                final OverlayItem point = new OverlayItem(
-                        new GeoPoint(coordinates[1], coordinates[0]),
-                        new BitmapDrawable(getResources(), resizeMapIcons(iconId)));
-                point.setOffsetY((iconHeigth/2)+15);
-                point.setOverlayItemListener(new OnOverlayItemListener() {
-                    public void onClick(OverlayItem clickItem) {
-                        List<Task> tas = findAllByAdress(coordinates);
-                        showTask(tas);
+            final int finalI = i;
+            EXECUTOR.submit(new Runnable() {
+                @Override
+                public void run() {
+                    final Task task = tasks.get(finalI);
+                    try {
+                        String addressForMap = task.getAddressForMap();
+                        System.out.println("Ищу адрес: " + addressForMap);
+                        final Double[] coordinates = getCoordinates(addressForMap);
+                        markedTasks.put(task, coordinates);
+                        final int iconId = task.getSubject().equals("Юр") ?
+                                R.drawable.map_vip : Visual.getIconForMap(task.getType_name());
+                        final OverlayItem point = new OverlayItem(
+                                new GeoPoint(coordinates[1], coordinates[0]),
+                                new BitmapDrawable(getResources(), resizeMapIcons(iconId)));
+                        point.setOffsetY((iconHeigth / 2) + 15);
+                        point.setOverlayItemListener(new OnOverlayItemListener() {
+                            public void onClick(OverlayItem clickItem) {
+                                List<Task> tas = findAllByAdress(coordinates);
+                                showTask(tas);
+                            }
+                        });
+                        overlay.addOverlayItem(point);
+                    } catch (Exception e) {
+                        errorDrawingTasks.add(task);
+                    } finally {
+                        int completed = atomicInteger.incrementAndGet();
+                        if (completed == tasks.size()){
+                            proceedShowObjects();
+                        }
                     }
-                });
-                overlay.addOverlayItem(point);
-            } catch (Exception e) {
-                errorDrawingTasks.add(task);
-            }
+                }
+            });
         }
+    }
+
+    private void proceedShowObjects(){
+        System.out.println("yandex " + yandex + " google " + google);
         setZoomSpan();
-        if (errorDrawingTasks.size()>0){
+        if (errorDrawingTasks.size() > 0) {
             HANDLER.post(new Runnable() {
                 @Override
                 public void run() {
                     String message = "Не удалось найти координаты:";
                     for (Task drawingTask : errorDrawingTasks) {
-                        message += "\n"+drawingTask.getAddressForMap();
+                        message += "\n" + drawingTask.getAddressForMap();
                     }
-                    Toast.makeText(getApplicationContext(),message,Toast.LENGTH_LONG).show();
+                    System.out.println(message);
+                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
                 }
             });
         }
@@ -150,25 +177,43 @@ public class YandexActivity extends AppCompatActivity {
         }
         in.close();
 
+        Double[] firstFoundedCoordinates = null; // сюда ложим первый результат.
+        // Если яндекс найдёт не точно, а гугл вообще не найдёт - вернётся результат яндекса.
+
         JSONArray results = new JSONObject(result).getJSONObject("response").getJSONObject("GeoObjectCollection").getJSONArray("featureMember");
         int resultCount = results.length();
         for (int i = 0; i < resultCount; i++) {
             JSONObject obj = results.getJSONObject(i).getJSONObject("GeoObject");
             String country = obj.getJSONObject("metaDataProperty").getJSONObject("GeocoderMetaData").getJSONObject("Address").getString("country_code");
-            if (country.equals("UA")){
+            if (country.equals("UA")) {
                 String[] coor = obj.getJSONObject("Point").getString("pos").split(" ");
                 Double[] coordinates = {Double.parseDouble(coor[0]), Double.parseDouble(coor[1])};
+                if (distanceToPointFromCurrentCity(coordinates) > 100) {
+                    continue; // если точка явно далеко
+                }
+                String precision = obj.getJSONObject("metaDataProperty").getJSONObject("GeocoderMetaData").getString("precision");
+                if ("other".equals(precision)) {
+                    if (firstFoundedCoordinates == null) {
+                        firstFoundedCoordinates = coordinates;
+                    }
+                    continue;
+                }
+
+                yandex++;
                 return coordinates;
             }
         }
-        return getCoordinatesFromGoogle(adress);
+        return getCoordinatesFromGoogle(adress, firstFoundedCoordinates);
     }
 
+    public static int yandex = 0;
+    public static int google = 0;
 
-    static Double[] getCoordinatesFromGoogle(String adress) throws Exception {
+
+    static Double[] getCoordinatesFromGoogle(String adress, Double[] findedByYandex) throws Exception {
         adress = adress.replaceAll(" ", "+");
         URL url = new URL("https://maps.googleapis.com/maps/api/geocode/json?address=" +
-                adress + "&key=AIzaSyD60Sy01JSEjVv8ZpHb3lKnvR569fPkC-c");
+                adress + "&key=" + getRandomGoogleMapsApiKey());
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
         String result = in.readLine();
@@ -182,16 +227,65 @@ public class YandexActivity extends AppCompatActivity {
         for (int i = 0; i < foundedCount; i++) {
             JSONObject obj = results.getJSONObject(i);
             JSONArray names = obj.getJSONArray("address_components");
-            for (int j = 0; j < names.length() ; j++) {
-                if ("UA".equals(names.getJSONObject(j).getString("short_name"))){
-                    JSONObject coordinates = obj.getJSONObject("geometry").getJSONObject("location");
-                    double lat = coordinates.getDouble("lng");
-                    double lon = coordinates.getDouble("lat");
-                    return new Double[]{lat,lon};
+            for (int j = 0; j < names.length(); j++) {
+                if ("UA".equals(names.getJSONObject(j).getString("short_name"))) {
+                    JSONObject jsonObjectWithCoordinates = obj.getJSONObject("geometry").getJSONObject("location");
+                    double lat = jsonObjectWithCoordinates.getDouble("lng");
+                    double lon = jsonObjectWithCoordinates.getDouble("lat");
+                    Double[] coordinates = new Double[]{lat, lon};
+                    if (distanceToPointFromCurrentCity(coordinates) > 100) {
+                        continue; // если точка явно далеко
+                    }
+                    google++;
+                    return coordinates;
                 }
             }
         }
+
+        if (findedByYandex != null) {
+            return findedByYandex;
+        }
+
+        if (adress.startsWith("село+")) { // пробуем повторно найти хотябы село.
+            String s = adress;
+            int numberOfPlus = 0;
+            while (s.contains("+")) { // защита от StackOverFlow
+                numberOfPlus++;// считаем количество плюсов.
+                s = s.substring(s.indexOf("+") + 1);// при повторном поиске ищем
+            }
+            if (numberOfPlus < 3) {//Если это повторный поиск то их будет меньше 3. село+Рожны или село+Червоная+Слобода
+                throw new Exception(); // обрываем цикл
+            }
+            String newSearth = adress.replaceAll("село\\+", "");
+            newSearth = newSearth.substring(0, newSearth.indexOf("+"));
+            newSearth = "село+" + newSearth;
+            return getCoordinates(newSearth);
+        }
+
+        if (adress.contains("Киев+Осокорки")){
+            if (adress.equals("Киев+Осокорки")){
+                throw new Exception(); // уже это и ищем. защита от StackOverFlow
+            }
+            return getCoordinates("Киев+Осокорки");
+        }
+
         throw new Exception();
+    }
+
+    public static double distanceToPointFromCurrentCity(Double[] pointCoordinates) {
+        if (currentSityCoordinates == null) {
+            return 0;
+        }
+        double lon1 = pointCoordinates[0];
+        double lat1 = pointCoordinates[1];
+        double lon2 = currentSityCoordinates[0]; // долгота
+        double lat2 = currentSityCoordinates[1]; // широта
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(Math.toRadians(lat1))
+                * Math.cos(Math.toRadians(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return c * 6400;
     }
 
     public Bitmap resizeMapIcons(int iconId) {
@@ -199,7 +293,7 @@ public class YandexActivity extends AppCompatActivity {
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
         int screenWidth = metrics.widthPixels;
         int neededWidht = screenWidth / 10;
-        int height = iconHeigth =(int) (neededWidht * 1.6);
+        int height = iconHeigth = (int) (neededWidht * 1.6);
         Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(), iconId);
         Bitmap resizedBitmap = Bitmap.createScaledBitmap(imageBitmap, neededWidht, height, false);
         return resizedBitmap;
@@ -304,5 +398,15 @@ public class YandexActivity extends AppCompatActivity {
         }
         mMapController.setZoomToSpan(maxLat - minLat, maxLon - minLon);
         mMapController.setPositionNoAnimationTo(new GeoPoint((maxLat + minLat) / 2, (maxLon + minLon) / 2));
+    }
+
+    public static String getRandomGoogleMapsApiKey() {
+        int random = (int) (Math.random() * 5);
+        return new String[]{
+                "AIzaSyAfLdsVj3h5aMuZM_aTU2AO64DwrYABEI8",
+                "AIzaSyB2E9-K7FA2Km7MDvm8oh2S4RcNDODM9oE",
+                "AIzaSyA5l3QVCBtiYQ_ZQtHCbsTUUTCjydUjj-o",
+                "AIzaSyDPPBPj-DcFapVMFfaXrNMrlviZ9IB93RI",
+                "AIzaSyDvvmUytkVGWaNO1JGNfjMPDGGKIaPj0P0"}[random];
     }
 }

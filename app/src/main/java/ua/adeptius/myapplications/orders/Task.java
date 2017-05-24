@@ -380,12 +380,100 @@ public class Task {
             address = address.substring(0, getAddr().lastIndexOf("кв") - 1);
         }
         address = address
-                .replaceAll("частныйдом","")
-                .replaceAll("частный дом","")
-                .replaceAll("- Виноградарь","")
-                .replaceAll("Ст\\.Петровцы","Старые Петровцы")
+                .replaceAll("частныйдом", "")
+                .replaceAll("частный дом", "")
         ;
-        String result = city + " " + address;
-        return result;
+        if (address.contains("- Рожны Трудовик")) {
+            return "село Рожны " + address.replaceAll("- Рожны Трудовик", "");
+        }
+
+        if (address.contains("- Рожны трудовик")) {
+            return "село Рожны " + address.replaceAll("- Рожны трудовик", "");
+        }
+
+        if (address.contains("- Дымер ")) {
+            return "село Дымер " + address.replaceAll("- Дымер ", "");
+        }
+
+        if (address.contains("- Демидов ")) {
+            return "село Демидов " + address.replaceAll("- Демидов ", "");
+        }
+
+        if (address.contains("-Троещина ул.")) {
+            return "Киев " + address.replaceAll("-Троещина ул\\.", "");
+        }
+
+        if (address.contains("- Совки ")) {
+            return "Киев " + address.replaceAll("- Совки ", "");
+        }
+
+        if (address.contains("-виноградарь")) {
+            return "Киев " + address.replaceAll("-виноградарь", "");
+        }
+
+        if (address.contains("- Ст.Петровцы ")) {
+            return "село Старые Петровцы " + address.replaceAll("- Ст\\.Петровцы ", "");
+        }
+
+        if (address.contains("- Жовтневый ")) {
+            return "Киев " + address.replaceAll("- Жовтневый ", "Зодчих ")
+                    .replaceAll("Блока А\\.", "").replaceAll("Блок А\\.", "");
+        }
+
+        if (address.contains("(с.Марьяновка)")) {
+            return "село Марьяновка " + address.replaceAll("(с\\.Марьяновка)", "");
+        }
+
+//        Леси Украинки(с.Червоная Слобода) ул., 50А, кв 11
+        if (address.contains("(с.Червоная Слобода)")) {
+            return "село Червоная Слобода";
+        }
+
+        if (address.contains("- Зазимье ")) {
+            return "село Зазимье " + address.replaceAll("- Зазимье ", "");
+        }
+
+        if (address.contains("- Лютеж ")) {
+            return "село Лютеж " + address.replaceAll("- Лютеж ", "");
+        }
+
+        if (address.contains("- Погребы ")) {
+            return "село Погребы " + address.replaceAll("- Погребы ", "");
+        }
+
+        if (address.contains("(Ширма)")) {
+            return "Киев " + address.replaceAll("\\(Ширма\\)", "");
+        }
+
+        if (address.contains("(Золоче2)") || address.contains("(Золоче)")) {
+            return "Коттеджный городок Золоче";
+        }
+
+        if (address.contains("(Осокорки)")) {
+            return "Киев Осокорки " + address.replaceAll("\\(Осокорки\\)", "");
+        }
+
+
+        if (address.contains("(Железнодорожний вокзал)")) {
+            return city + address.replaceAll("\\(Железнодорожний вокзал\\)", "");
+        }
+
+
+        for (String village : villages) {
+            if (address.contains("("+village+")")){
+                return "село " + village + " " + address.replaceAll("\\("+village+"\\)", "");
+            }
+        }
+
+
+        return city + " " + address;
     }
+
+    private String[] villages = {
+            "Іванівка",
+            "Зарічани",
+            "Тетеревка",
+            "Глибочиця",
+            "Барашівка"
+    };
 }

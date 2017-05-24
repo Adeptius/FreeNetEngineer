@@ -135,7 +135,7 @@ public class Visual {
         if (s.equals("Oll-TV Обслуживание")) return R.drawable.olltv;
         if (s.equals("Проверка возможности подключения")) return R.drawable.pvp;
         if (s.equals("Падение коммутатора")) return R.drawable.shutdown;
-        if (s.equals("Техническое обслуживание ВОЛС")) return R.drawable.pvp;
+        if (s.equals("Техническое обслуживание ВОЛС") || s.equals("Техническое обслуживание/ВОЛС")) return R.drawable.pvp;
         if (s.equals("Удержание")) return R.drawable.uderzhanie;
         if (s.equals("Срочный вызов")) return R.drawable.emergency2;
         return 0;
@@ -165,7 +165,7 @@ public class Visual {
         if (s.equals("Oll-TV Обслуживание")) return R.drawable.map_olltv;
         if (s.equals("Проверка возможности подключения")) return R.drawable.map_pvp;
         if (s.equals("Падение коммутатора")) return R.drawable.map_shutdown;
-        if (s.equals("Техническое обслуживание ВОЛС")) return R.drawable.map_pvp;
+        if (s.equals("Техническое обслуживание ВОЛС") || s.equals("Техническое обслуживание/ВОЛС")) return R.drawable.map_pvp;
         if (s.equals("Удержание")) return R.drawable.map_uderzhanie;
         if (s.equals("Срочный вызов")) return R.drawable.map_emergency2;
         return 0;

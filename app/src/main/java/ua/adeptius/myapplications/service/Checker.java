@@ -18,6 +18,8 @@ import ua.adeptius.myapplications.activities.MainActivity;
 import ua.adeptius.myapplications.dao.GetInfo;
 import ua.adeptius.myapplications.util.Settings;
 import ua.adeptius.myapplications.util.Utilites;
+
+import static android.content.Context.MODE_PRIVATE;
 import static ua.adeptius.myapplications.service.BackgroundService.mNotificationManager;
 import static ua.adeptius.myapplications.service.BackgroundService.newTasksIds;
 import static ua.adeptius.myapplications.service.BackgroundService.wasNewTaskCountInLastTime;
@@ -43,6 +45,8 @@ class Checker extends Thread {
                 e.printStackTrace();
             }
         }
+
+        Settings.setsPref(context.getSharedPreferences("settings", MODE_PRIVATE));
 
         if (isNoticeAllowedNow()) {
 //        if (true) {

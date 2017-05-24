@@ -7,13 +7,17 @@ import java.security.MessageDigest;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import ua.adeptius.myapplications.orders.Task;
 import ua.adeptius.myapplications.orders.TaskHistory;
 
 public class Utilites {
 
-    public static final ExecutorService EXECUTOR = Executors.newCachedThreadPool();
+    public static final ExecutorService EXECUTOR = new ThreadPoolExecutor(2, 15, 5L, TimeUnit.SECONDS,new LinkedBlockingQueue<Runnable>());
     public static final Handler HANDLER = new Handler();
 
     public static String createMd5(String st) {
@@ -28,45 +32,6 @@ public class Utilites {
         }catch (Exception e){}
         return null;
     }
-
-//    public static Task createTask(Map<String, String> temp){
-//        Task task = new Task();
-//        task.setType_name(temp.get("type_name"));
-//        task.setCity(temp.get("city"));
-//        task.setSwitch_port(temp.get("switch_port"));
-//        task.setSubject(temp.get("subject"));
-//        task.setLoglk(temp.get("loglk"));
-//        task.setIp(temp.get("ip"));
-//        task.setTermin(temp.get("termin"));
-//        task.setType(temp.get("type"));
-//        task.setGerkon(temp.get("gerkon"));
-//        task.setDatetime(temp.get("datetime"));
-//        task.setPhone(temp.get("phone"));
-//        task.setMasc(temp.get("masc"));
-//        task.setName(temp.get("name"));
-//        task.setComment(temp.get("comment"));
-//        task.setId(temp.get("id"));
-//        task.setPasslk(temp.get("passlk"));
-//        task.setAddr(temp.get("addr"));
-//        task.setUser(temp.get("user"));
-//        task.setCard(temp.get("card"));
-//        task.setGateway(temp.get("gateway"));
-//        task.setDistrikt(temp.get("distrikt"));
-//        task.setSwitch_ip(temp.get("switch_ip"));
-//        task.setWho(temp.get("who"));
-//        task.setRterm(temp.get("rterm"));
-//        task.setGarantServise(temp.get("gsrv"));
-//        task.setSw_place(temp.get("sw_place"));
-//        return task;
-//    }
-
-//    public static TaskHistory createTaskHistory(Map<String, String> temp){
-//        TaskHistory task = new TaskHistory();
-//        task.setType_name(temp.get("type_name"));
-//        task.setDatetime(temp.get("datetime"));
-//        task.setComment(temp.get("comment"));
-//        return task;
-//    }
 
     public static void myLog(String message){
         Log.d("====FreeNetEngineer====", message);

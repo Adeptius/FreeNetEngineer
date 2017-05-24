@@ -27,6 +27,9 @@ public class GetInfo {
         ArrayList<String> tasks = new ArrayList<>();
         String result = Web.sendPost("http://188.231.188.188/api/task_api_id.php", map);
 //        String result = Web.sendPost("http://195.181.208.31/web/support/tasks", map);
+        if (result.equals("[{\"error\":\"No_tasks\"}]")){
+            return tasks;
+        }
         JSONArray array = new JSONArray(result);
         for (int i = 0; i < array.length(); i++) {
             JSONObject jsonObject = array.getJSONObject(i);

@@ -45,6 +45,13 @@ class Checker extends Thread {
                 e.printStackTrace();
             }
         }
+        if (newTasksIds == null) {
+            try {
+                newTasksIds = new ArrayList<>();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
 
         Settings.setsPref(context.getSharedPreferences("settings", MODE_PRIVATE));
 
@@ -70,6 +77,7 @@ class Checker extends Thread {
     }
 
     public static boolean isNoticeAllowedNow() {
+
         if (!Settings.isNotifyNewTasks()) return false;
         Calendar calendar = new GregorianCalendar();
         int hours = calendar.get(Calendar.HOUR_OF_DAY);

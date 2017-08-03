@@ -36,6 +36,7 @@ public class Task {
     private String who;
     private String garantServise;
     private String sw_place;
+    private String switch_mac;
 
     public Task() {
     }
@@ -66,7 +67,19 @@ public class Task {
         setUser(object.getString("user"));
         setComment(object.getString("comment"));
         setGarantServise(object.getString("gsrv"));
+        setSwitch_mac(object.getString("switch_mac"));
 
+    }
+
+    public String getSwitch_mac() {
+        if (switch_mac == null) {
+            return "";
+        }
+        return switch_mac;
+    }
+
+    public void setSwitch_mac(String switch_mac) {
+        this.switch_mac = switch_mac;
     }
 
     public String getGarantServise() {
@@ -94,6 +107,9 @@ public class Task {
     }
 
     public String getSw_place() {
+        if (sw_place == null) {
+            return "";
+        }
         return sw_place;
     }
 
@@ -118,6 +134,9 @@ public class Task {
     }
 
     public String getGerkon() {
+        if (gerkon == null) {
+            return "";
+        }
         return gerkon;
     }
 

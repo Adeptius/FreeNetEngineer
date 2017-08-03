@@ -13,8 +13,7 @@ public class MyAlarmManager {
     void setUpAlarm(Context context){
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(ALARM_SERVICE);
         Intent intent = new Intent(context, AutoRun.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                context, 0, intent,0);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent,0);
         alarmManager.set(AlarmManager.RTC_WAKEUP, getTimer(), pendingIntent);
     }
 

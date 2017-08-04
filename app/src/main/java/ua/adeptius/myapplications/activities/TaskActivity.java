@@ -209,14 +209,8 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
                 .append("Создал: " + task.getUser() + " " + task.getDatetime()).append("\n")
                 .append("Свич" + ": " + task.getSwitch_ip())
                 .append(" : " + task.getSwitch_port())
-                .append("\n Геркон" + ": " + task.getGerkon() + " " + task.getSw_place())
-                .append("\n Мак" + ": " + task.getSwitch_mac());
-//        if (task.getSw_place() != null) {
-//            if (!"null".equals(task.getSw_place())) {
-//                sb.append("\nРасположение свича: " + task.getSw_place());
-//                        .replaceAll("свич стоит в", ""));
-//            }
-//        }
+                .append("\nРасположение" + ": " + task.getGerkon() + " " + task.getSw_place())
+                .append("\nМак" + ": " + task.getSwitch_mac());
 
         elseInfo.setText(sb.toString());
         elseInfo.setPadding(10, 10, 0, 10);

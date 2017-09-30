@@ -289,32 +289,6 @@ public class MainActivity extends AppCompatActivity
                 tasks = GetInfo.getNotAssignedTask();
             }
 
-//            if (needToShow == ONLY_MY_TASK) { // Тут должно быть ONLY_MY_TASK
-//                myLog("Запрашиваю назначенные заявки");
-//                request = new String[3];
-//                request[0] = "http://188.231.188.188/api/task_api.php";
-//                request[1] = "begun=" + Settings.getCurrentLogin();
-//                request[2] = "drowssap=" + Settings.getCurrentPassword();
-//            }
-//
-//            if (needToShow == ONLY_NOT_ASSIGNED_TASK) { // тут должно быть ONLY_NOT_ASSIGNED_TASK
-//                myLog("Запрашиваю не назначенные заявки");
-//                request = new String[4];
-//                request[0] = "http://188.231.188.188/api/notassigned_api.php";
-//                request[1] = "begun=" + Settings.getCurrentLogin();
-//                request[2] = "drowssap=" + Settings.getCurrentPassword();
-//                request[3] = "taccepted=notassigned";
-//            }
-//
-//            ArrayList<Map<String, String>> arrayMap = EXECUTOR.submit(new DataBase(request)).get();
-//            tasks = new ArrayList<>(); // будем все таски пихать сюда
-//            if (!arrayMap.get(0).containsKey("error")) { // если нам не пришло [{"error":"No_tasks"}]
-//                myLog("Заявки есть. Создаю обьекты - заявки");
-//                for (int i = 0; i < arrayMap.size(); i++) { // Для каждого обьекта "заявка"
-//                    Map<String, String> temp = arrayMap.get(i);
-//                    tasks.add(Utilites.createTask(temp));
-//                }
-//            }
         } catch (Exception e) {
             tasks = new ArrayList<>();
             HANDLER.post(new Runnable() {

@@ -37,6 +37,9 @@ public class Task {
     private String garantServise;
     private String sw_place;
     private String switch_mac;
+    private String nterm; //"22", - термин в часах
+    private String uterm; //"33", - прошло времени в часах
+    private String sterm; //" 33 ч." - строкой сколько времени заявке
 
     public Task() {
     }
@@ -68,7 +71,9 @@ public class Task {
         setComment(object.getString("comment"));
         setGarantServise(object.getString("gsrv"));
         setSwitch_mac(object.getString("switch_mac"));
-
+        setUterm(object.getString("uterm"));
+        setNterm(object.getString("nterm"));
+        setSterm(object.getString("sterm"));
     }
 
     public String getSwitch_mac() {
@@ -76,6 +81,30 @@ public class Task {
             return "";
         }
         return switch_mac;
+    }
+
+    public void setNterm(String nterm) {
+        this.nterm = nterm;
+    }
+
+    public void setUterm(String uterm) {
+        this.uterm = uterm;
+    }
+
+    public void setSterm(String sterm) {
+        this.sterm = sterm;
+    }
+
+    public String getNterm() {
+        return nterm;
+    }
+
+    public String getUterm() {
+        return uterm;
+    }
+
+    public String getSterm() {
+        return sterm;
     }
 
     public void setSwitch_mac(String switch_mac) {

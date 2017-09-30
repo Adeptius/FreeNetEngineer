@@ -80,34 +80,71 @@ public class Visual {
         tv.setTextColor(Color.WHITE);
         tv.setPadding(0,0,0,0);
         rightLayout.addView(tv, WRAP_WRAP);
-        TextView tv2 = new TextView(context);
-        tv2.setTextColor(Color.WHITE);
+        TextView terminTextView = new TextView(context);
+        terminTextView.setTextColor(Color.WHITE);
+
+
 
         try{
-            float rterm = Float.parseFloat(task.getRterm());
-            float term = Float.parseFloat(task.getTermin());
-            if (rterm > 5){
-                task.setRterm("" + (int) rterm);
-                task.setTermin("" + (int) term);
+            int limitHours = Integer.parseInt(task.getNterm());
+            int pastHours = Integer.parseInt(task.getUterm());
+            terminTextView.setTextColor(Color.GREEN);
+            if (limitHours <= pastHours){
+                terminTextView.setTextColor(Color.parseColor("#ef5350"));
+            }else if (limitHours <= pastHours+3){
+                terminTextView.setTextColor(Color.YELLOW);
             }
 
-            if (task.getType_name().equals("СТК") || task.getType_name().equals("Нет линка по оптике")){
-                tv2.setTextColor(Color.YELLOW);
-                if (rterm >= 1) tv2.setTextColor(Color.parseColor("#ef5350"));
-            }else{
-                tv2.setTextColor(Color.GREEN);
-                if (rterm >= 1) tv2.setTextColor(Color.YELLOW);
-                if (rterm >= 2) tv2.setTextColor(Color.parseColor("#ef5350"));
-            }
-        }catch (Exception e){e.printStackTrace();}
-        String termToShow = "" + task.getRterm();
-        if (!task.getRterm().equals(task.getTermin()))
-            termToShow = "" + task.getRterm() + "(" + task.getTermin() + ")";
-        termToShow = termToShow.replace(".0","");
-        tv2.setText("Срок заявки: " + termToShow +" дней");
+            terminTextView.setText("Срок: " + pastHours + "/" + limitHours +" ч.");
 
-        tv2.setPadding(0,0,0,0);
-        rightLayout.addView(tv2, WRAP_WRAP);
+//            if (rterm > 5){
+//                task.setRterm("" + (int) rterm);
+//                task.setTermin("" + (int) term);
+//            }
+//
+//            if (task.getType_name().equals("СТК") || task.getType_name().equals("Нет линка по оптике")){
+//                terminTextView.setTextColor(Color.YELLOW);
+//                if (rterm >= 1) terminTextView.setTextColor(Color.parseColor("#ef5350"));
+//            }else{
+//                terminTextView.setTextColor(Color.GREEN);
+//                if (rterm >= 1) terminTextView.setTextColor(Color.YELLOW);
+//                if (rterm >= 2) terminTextView.setTextColor(Color.parseColor("#ef5350"));
+//            }
+        }catch (Exception e){
+            e.printStackTrace();
+
+        }
+//        String termToShow = "" + task.getRterm();
+//        if (!task.getRterm().equals(task.getTermin()))
+//            termToShow = "" + task.getRterm() + "(" + task.getTermin() + ")";
+//        termToShow = termToShow.replace(".0","");
+
+
+//        try{
+//            float rterm = Float.parseFloat(task.getRterm());
+//            float term = Float.parseFloat(task.getTermin());
+//            if (rterm > 5){
+//                task.setRterm("" + (int) rterm);
+//                task.setTermin("" + (int) term);
+//            }
+//
+//            if (task.getType_name().equals("СТК") || task.getType_name().equals("Нет линка по оптике")){
+//                tv2.setTextColor(Color.YELLOW);
+//                if (rterm >= 1) tv2.setTextColor(Color.parseColor("#ef5350"));
+//            }else{
+//                tv2.setTextColor(Color.GREEN);
+//                if (rterm >= 1) tv2.setTextColor(Color.YELLOW);
+//                if (rterm >= 2) tv2.setTextColor(Color.parseColor("#ef5350"));
+//            }
+//        }catch (Exception e){e.printStackTrace();}
+//        String termToShow = "" + task.getRterm();
+//        if (!task.getRterm().equals(task.getTermin()))
+//            termToShow = "" + task.getRterm() + "(" + task.getTermin() + ")";
+//        termToShow = termToShow.replace(".0","");
+//        tv2.setText("Срок заявки: " + termToShow +" дней");
+
+        terminTextView.setPadding(0,0,0,0);
+        rightLayout.addView(terminTextView, WRAP_WRAP);
         return horizontalVievForTask;
     }
 

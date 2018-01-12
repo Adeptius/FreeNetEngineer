@@ -40,6 +40,7 @@ public class Task {
     private String nterm; //"22", - термин в часах
     private String uterm; //"33", - прошло времени в часах
     private String sterm; //" 33 ч." - строкой сколько времени заявке
+    private String taskNumber;
 
     public Task() {
     }
@@ -81,6 +82,14 @@ public class Task {
             return "";
         }
         return switch_mac;
+    }
+
+    public String getTaskNumber() {
+        return taskNumber;
+    }
+
+    public void setTaskNumber(String taskNumber) {
+        this.taskNumber = taskNumber;
     }
 
     public void setNterm(String nterm) {
@@ -524,4 +533,6 @@ public class Task {
             "Глибочиця",
             "Барашівка"
     };
+
+
 }

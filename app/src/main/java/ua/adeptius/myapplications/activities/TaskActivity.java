@@ -206,6 +206,7 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
         TextView elseInfo = new TextView(this);
         StringBuffer sb = new StringBuffer("");
         sb.append(task.getCity() + " (" + task.getDistrikt() + ")").append("\n")
+                .append("Заявка: " + task.getId()).append("\n")
                 .append("Создал: " + task.getUser() + " " + task.getDatetime()).append("\n")
                 .append("Свич" + ": " + task.getSwitch_ip())
                 .append(" : " + task.getSwitch_port())
